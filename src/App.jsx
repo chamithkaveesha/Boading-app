@@ -8,6 +8,7 @@ import Payment from './pages/Payment';
 import Repayment from './pages/RePayment';
 import Signup from './pages/Signup';
 import ErrorPage from './pages/ErrorPage';
+import accountLoader from './loaders/accountLoader';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -15,8 +16,13 @@ const router = createBrowserRouter(
             element={<RootLayout />}
             errorElement={<ErrorPage />}
     >
-      <Route index element={<Dashboard />} />
-      <Route path="account" element={<Account />} />
+      <Route  index 
+              element={<Dashboard />} 
+              />
+      <Route  path="account" 
+              element={<Account />}
+              loader = {accountLoader}
+               />
       <Route path="payment" element={<Payment />} />
       <Route path="repayment" element={<Repayment />} />
       <Route path="login" element={<Login />} />

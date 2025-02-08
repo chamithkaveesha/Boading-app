@@ -1,19 +1,20 @@
+import { useLoaderData } from 'react-router-dom';
+
 const name = "name";
 const Rname = "room name";
 const balance = 12;
 
 function Account(){
-    return(
+    const accountData = useLoaderData();
+    return (
         <div>
-            <span>Name :</span>
-            <span>{name}</span>
-            <span>Balance :</span>
-            <span>{balance}</span>
-            <span>Room Name :</span>
-            <span>{Rname}</span>
+            <h1>Account Information</h1>
+            <pre>{JSON.stringify(accountData, null, 2)}</pre>
         </div>
-    );
+        );
 
 }
 
 export default Account;
+
+
