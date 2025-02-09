@@ -8,7 +8,7 @@ import Payment from './pages/Payment';
 import Repayment from './pages/RePayment';
 import Signup from './pages/Signup';
 import ErrorPage from './pages/ErrorPage';
-import accountLoader from './loaders/accountLoader';
+import accountLoader from './Loaders/accountLoader';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
