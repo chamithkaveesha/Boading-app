@@ -4,7 +4,11 @@ import TransactionPage from "../components/TransactionPage";
 function TransactionLog() {
   const transactions = useLoaderData();
   return (
-    <TransactionPage transactions={transactions}/>
+    <div>
+      
+      <TransactionPage transactions={transactions}/>
+    </div>
+    
   );
 }
 
