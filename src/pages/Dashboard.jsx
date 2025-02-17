@@ -22,9 +22,8 @@ function Dashboard() {
     
     const handleCreateRoom = () => {
         if (newRoomName && members.length > 0) {
-            console.log("Room Created:", newRoomName);
-            console.log("Members:", members);
             // implement the create room logic here
+            
         } else {
             alert("Please provide a room name and add at least one member.");
         }

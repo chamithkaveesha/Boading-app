@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 const useStore = create((set) => ({
   object: {},
-  setObject: (newObject) => set({ object: newObject }),
+  setArray: (newArray) => set({ object: newArray }),
 }));
 
 export default useStore;
