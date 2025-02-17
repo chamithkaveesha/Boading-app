@@ -8,7 +8,9 @@ import Payment from './pages/Payment';
 import Repayment from './pages/RePayment';
 import Signup from './pages/Signup';
 import ErrorPage from './pages/ErrorPage';
+import DashboardAdmin from './pages/DashboardAdmin';
 import accountLoader from './Loaders/accountLoader';
+import Test from './pages/test';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -27,6 +29,8 @@ const router = createBrowserRouter(
       <Route path="repayment" element={<Repayment />} />
       <Route path="login" element={<Login />} />
       <Route path="signup" element={<Signup />} />
+      <Route path="dashboardadmin" element={<DashboardAdmin />} />
+      <Route path="test" element={<Test />} />
     </Route>
   )
 );
