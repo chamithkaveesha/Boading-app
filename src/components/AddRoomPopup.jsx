@@ -44,11 +44,11 @@ function AddRoomPopup({ isOpen, onClose, token, onRoomCreated }) {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <h2 className="text-2xl font-semibold">Create Room</h2>
+      <h2 className="text-2xl text-black font-semibold">Create Room</h2>
 
       <form className="mt-4" onSubmit={handleCreateRoom}>
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+        <div className="mb-4  text-gray-700">
+          <label htmlFor="name" className="block text-sm font-medium">
             Room Name
           </label>
           <input
@@ -58,6 +58,7 @@ function AddRoomPopup({ isOpen, onClose, token, onRoomCreated }) {
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
+            
           />
           {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
         </div>

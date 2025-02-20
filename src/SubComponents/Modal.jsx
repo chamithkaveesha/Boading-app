@@ -4,7 +4,7 @@ function Modal({ isOpen, onClose, children }) {
   return (
     <div
       className={`${
-        isOpen ? "fixed inset-0 flex items-center justify-center z-50" : "hidden"
+        isOpen ? "fixed inset-0 flex items-center justify-center z-150" : "hidden"
       }`}
     >
       <div className="absolute inset-0 bg-black/70" onClick={onClose}></div>
