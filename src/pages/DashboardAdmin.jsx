@@ -1,14 +1,19 @@
 import { useState,useEffect } from "react";
 import useFetchData from "../SubComponents/useFetchData";
 import AddRoomPopup from "../components/AddRoomPopup";
+import AddMemberPopup from "../components/AddMemberPopup";
 
 
 function DashboardAdmin() {
-  const userId = 1;
-  const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGljZS5qb2huc29uQGV4YW1wbGUuY29tIiwiaWF0IjoxNzM5OTc3NDQzLCJleHAiOjE3NDAwNjM4NDN9.JIcKdoe5HslqI4vDDTc7ZcIU21q28Rtuk5OWoMDlc5bTckrVCoKD5JjjIpU9OoqOosXbOHAZ9_YMSQ1o1S97EA";
+  const userId = 5;
+  const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGljZS5qb2huc29uQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQwMDM5OTY0LCJleHAiOjE3NDAxMjYzNjR9.ceoz7kWdPltkGBpDiyXUrA4VNi0-yelY2Dzi2I2JwcCT2FlhcMkjGtnjqUq4BMfPJaCZ8NPOEuTht33sZCSgKw";
   const {data:rooms,loading:loadingRooms,error:roomError}= useFetchData(`http://localhost:8080/api/rooms/roomer/${userId}`,token);
   
-  const [room,setRoom]=useState(rooms?rooms[0]:null);
+  if (roomError){
+    rooms=[];
+  }
+  
+  const [room,setRoom]=useState(null);
 
   useEffect(() => {
     if (rooms && rooms.length > 0) {
@@ -18,7 +23,7 @@ function DashboardAdmin() {
 
   const {data:members,loading:loadingRoomMembers,error:membersError}= useFetchData(room?`http://localhost:8080/api/rooms/${room.id}/users`:null,token);
 
-  const [member,setMember]=useState(members?members[0]:null);
+  const [member,setMember]=useState(null);
 
   useEffect(() => {
     if (members && members.length > 0) {
@@ -30,11 +35,14 @@ function DashboardAdmin() {
     setRoom(room);
   }
   const [createRoomPopup, setCreateRoomPopup] = useState(false);
+  const [addMemberPopup, setAddMemberPopup] = useState(false);
 
   const handleRoomCreated = (newRoom) => {
     console.log(newRoom);
   };
-
+  const handleMemberAdded = (newMember) => {
+    console.log(newMember);
+  };
 
   return (
     <div className="flex  justify-center items-center">
@@ -51,11 +59,11 @@ function DashboardAdmin() {
             
             {/* add room button */}
             <button  onClick={()=>setCreateRoomPopup(true)} className="cursor-pointer bg-black rounded-sm mb-1 mx-2 p-1">+</button>
-            <AddRoomPopup
-            isOpen={createRoomPopup} 
-            onClose={() => setCreateRoomPopup(false)} 
-            token={token}
-            onRoomCreated = {handleRoomCreated}
+             <AddRoomPopup
+              isOpen={createRoomPopup} 
+              onClose={() => setCreateRoomPopup(false)} 
+              token={token}
+              onRoomCreated = {handleRoomCreated}
             />
 
           </div>
@@ -70,8 +78,8 @@ function DashboardAdmin() {
               <h3 className="text-2xl p-5">MEMBERS</h3>
               <div className="flex flex-col text-sm text-amber-50 justify-center h-full">
 
-              {!loadingRoomMembers && Array.isArray(members) && members.map(member => (
-                <div key={member.id} onClick={()=>setMember(member)}className="bg-gray-600 rounded-sm mb-1 mx-2 flex flex-col">
+              {!loadingRoomMembers && Array.isArray(members) && members.map((member,index) => (
+                <div key={index} onClick={()=>setMember(member)}className="bg-gray-600 rounded-sm mb-1 mx-2 flex flex-col">
                   <div className="bg-black rounded-sm px-1">
                     <span>{member.name}</span>
                   </div>
@@ -81,14 +89,24 @@ function DashboardAdmin() {
 
     
                 {/* button for adding member */}
-                <button className="bg-black rounded-sm mb-1 mx-2 ">+</button>
+                <button onClick={() => setAddMemberPopup(true)}className="bg-black rounded-sm mb-1 mx-2 ">+</button>
+                {addMemberPopup && room && (
+                  <AddMemberPopup
+                    isOpen={addMemberPopup}
+                    onClose={() => setAddMemberPopup(false)}
+                    token={token}
+                    room={room}
+                    onMemberCreated={handleMemberAdded}
+                  />
+                )}
+
               </div>
               
             </aside>
 
             {/* section for member balences */}
             <section className="w-1/6 bg-green-50 flex flex-col items-center">
-              <h3 className="p-5 text-2xl">MEMBER1</h3>
+              <h3 className="p-5 text-2xl">{member && member.name}</h3>
               <div className="text-xs w-2/3 flex flex-col justify-center h-full">
                 <div className="bg-gray-200 m-1 rounded-sm p-1 relative text-end">
                   <span className="absolute left-0 top-0 bg-green-600 rounded-sm p-1 w-1/2">member1</span>
