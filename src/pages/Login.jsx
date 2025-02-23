@@ -3,7 +3,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { loginUser } from "../api/auth"; 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
+
 
 const schema = yup.object().shape({
     email: yup.string().email("Invalid email format").required("Email is required"),
@@ -27,7 +28,7 @@ function Login() {
             const response = await loginUser(data); // Call login API
             sessionStorage.setItem("token", response.token); // Store JWT token
     
-            navigate("/dashboardadmin"); // Redirect to dashboard after login
+            navigate(""); // Redirect to dashboard after login
         } catch (err) {
             setError(err.message || "Login failed");
         } finally {
@@ -57,6 +58,9 @@ function Login() {
                 <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded" disabled={loading}>
                     {loading ? "Logging in..." : "Login"}
                 </button>
+                <label className="block text-sm text-center mt-4">
+                    Don't have an account? <Link to="/signup" className="text-blue-500">Sign Up</Link>
+                </label>
             </form>
         </div>
     );

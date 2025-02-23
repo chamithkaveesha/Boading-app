@@ -28,35 +28,7 @@ export const fetchRoomUsers = async (roomId, token) => {
 };
 
 // Create a new room
-export const createRoom = async (roomData, token) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/rooms`, roomData, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || "Failed to create room";
-  }
-};
+
 
 // Add a user to a room
-export const addUserToRoom = async (roomId, userData, token) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/rooms/${roomId}/users`,
-      userData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || "Failed to add user to room";
-  }
-};
+

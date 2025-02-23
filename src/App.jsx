@@ -20,11 +20,11 @@ const router = createBrowserRouter(
     <Route path="" element={<RootLayout />} errorElement={<ErrorPage />}>
       {/* Protected Routes - Require Authentication */}
       <Route element={<ProtectedRoute />}>
-        <Route index element={<Dashboard />} />
+        <Route index element={<DashboardAdmin />} />
         <Route path="account" element={<Account />} loader={accountLoader} />
         <Route path="payment" element={<Payment />} />
         <Route path="repayment" element={<Repayment />} />
-        <Route path="dashboardadmin" element={<DashboardAdmin />} />
+        {/* <Route path="dashboardadmin" element={<DashboardAdmin />} /> */}
       </Route>
 
       {/* Redirect if already logged in */}

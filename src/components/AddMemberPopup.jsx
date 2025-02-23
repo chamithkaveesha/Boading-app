@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { addUserToRoom } from "../api/adduserToRoom"; // Adjust the path as necessary
 import Modal from "../SubComponents/Modal";
 
-function AddMemberPopup({ isOpen, onClose, token, room,onMemberCreated }) {
+function AddMemberPopup({ isOpen, onClose, token, room, onMemberCreated }) {
 
   if (!room) {
     return null; // Prevent rendering if room is undefined
@@ -14,35 +15,20 @@ function AddMemberPopup({ isOpen, onClose, token, room,onMemberCreated }) {
   const handleAddMember = async (e) => {
     e.preventDefault(); // Prevent page refresh
     setError("");
-    
+
     if (!memberName) {
       setError("Please enter a name.");
       return;
     }
 
-
     setLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:8080/api/rooms/${room.id}/users`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: memberName,isRegistered:false }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failto add member");
-      }
-
-      const newMember = await response.json();
+      const newMember = await addUserToRoom(room.id, { name: memberName, isRegistered: false }, token);
       onMemberCreated(newMember); // Callback to update UI
       onClose(); // Close modal
     } catch (error) {
-      console.error("Error:", error);
-      setError("Error creating room. Try again.");
+      setError(error || "Error adding member. Try again.");
     } finally {
       setLoading(false);
     }
@@ -53,14 +39,14 @@ function AddMemberPopup({ isOpen, onClose, token, room,onMemberCreated }) {
       <h2 className="text-2xl font-semibold text-black">Add Member To {room.name}</h2>
 
       <form className="mt-4" onSubmit={handleAddMember}>
-        <div className="mb-4  text-gray-700">
+        <div className="mb-4 text-gray-700">
           <label htmlFor="name" className="block text-sm font-medium">
             Member Name
           </label>
           <input
             type="text"
             id="name"
-            placeholder="Enter room name"
+            placeholder="Enter member name"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             value={memberName}
             onChange={(e) => setMemberName(e.target.value)}
