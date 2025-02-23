@@ -5,32 +5,17 @@ import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import transaction from "./assets/transaction.svg";
 import SelectTransactionPopup from "./components/SelectTransactionPopup";
+import fetchUser from "./api/fetchUser";
 
 const RootLayout = () => {
   const email = "alice.johnson@example.com";
-  const token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGljZS5qb2huc29uQGV4YW1wbGUuY29tIiwiaWF0IjoxNzQwMDM5OTY0LCJleHAiOjE3NDAxMjYzNjR9.ceoz7kWdPltkGBpDiyXUrA4VNi0-yelY2Dzi2I2JwcCT2FlhcMkjGtnjqUq4BMfPJaCZ8NPOEuTht33sZCSgKw";
+  const token = sessionStorage.getItem("token");
   
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
   const [popup, setPopup] = useState(false);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:8080/api/users/email?email=${email}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setUser(response.data);
-      } catch (err) {
-        setError(err.message);
-      }
-    };
-
     fetchUser();
   }, []);
 
