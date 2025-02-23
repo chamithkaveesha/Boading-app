@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import axios from 'axios';
 
 function Repayment() {
     const [payer, setPayer] = useState('');
@@ -7,14 +8,40 @@ function Repayment() {
     const [payerSearchResults, setPayerSearchResults] = useState([]);
     const [payeeSearchResults, setPayeeSearchResults] = useState([]);
 
+    const handlePayerSearch = async (searchTerm) => {
+        // Simulate an API call to search for payers
+        try {
+            const response = await axios.get(`/api/payers/search?query=${searchTerm}`);
+            setPayerSearchResults(response.data); // Assume response.data is an array of payer names
+        } catch (error) {
+            console.error('Error fetching payer data:', error);
+        }
+    };
 
-    
+    const handlePayeeSearch = async (searchTerm) => {
+        // Simulate an API call to search for payees
+        try {
+            const response = await axios.get(`/api/payees/search?query=${searchTerm}`);
+            setPayeeSearchResults(response.data); // Assume response.data is an array of payee names
+        } catch (error) {
+            console.error('Error fetching payee data:', error);
+        }
+    };
 
-    const handleConfirm = () => {
-        // Logic for confirming repayment
-        console.log('Payer:', payer);
-        console.log('Payee:', payee);
-        console.log('Amount:', amount);
+    const handleConfirm = async () => {
+        // Confirm repayment and send details to backend
+        try {
+            const response = await axios.post('/api/repayments', {
+                payer,
+                payee,
+                amount: parseFloat(amount),
+            });
+            if (response.status === 200) {
+                alert('Repayment confirmed!');
+            }
+        } catch (error) {
+            console.error('Error confirming repayment:', error);
+        }
     };
 
     return (
@@ -24,14 +51,22 @@ function Repayment() {
                     <label className="font-semibold text-gray-700">Add Payer</label>
                     <input 
                         value={payer} 
-                        onChange={(e) => setPayer(e.target.value)} 
+                        onChange={(e) => {
+                            setPayer(e.target.value);
+                            handlePayerSearch(e.target.value);  // Trigger search when input changes
+                        }} 
                         className="w-full p-2 border border-gray-300 rounded-md"
                         placeholder="Enter payer name"
                     />
                     <p className="text-sm text-gray-500">
-                        {/* Display search results, all are selectable */}
                         {payerSearchResults.map((result, index) => (
-                            <div key={index} className="py-2">{result}</div>
+                            <div 
+                                key={index} 
+                                className="py-2 cursor-pointer hover:bg-gray-200"
+                                onClick={() => setPayer(result)}
+                            >
+                                {result}
+                            </div>
                         ))}
                     </p>
                     <span className="text-lg font-medium text-gray-900">{payer}</span>
@@ -41,14 +76,22 @@ function Repayment() {
                     <label className="font-semibold text-gray-700">Add Payee</label>
                     <input 
                         value={payee} 
-                        onChange={(e) => setPayee(e.target.value)} 
+                        onChange={(e) => {
+                            setPayee(e.target.value);
+                            handlePayeeSearch(e.target.value);  // Trigger search when input changes
+                        }} 
                         className="w-full p-2 border border-gray-300 rounded-md"
                         placeholder="Enter payee name"
                     />
                     <p className="text-sm text-gray-500">
-                        {/* Display search results, all are selectable */}
                         {payeeSearchResults.map((result, index) => (
-                            <div key={index} className="py-2">{result}</div>
+                            <div 
+                                key={index} 
+                                className="py-2 cursor-pointer hover:bg-gray-200"
+                                onClick={() => setPayee(result)}
+                            >
+                                {result}
+                            </div>
                         ))}
                     </p>
                     <span className="text-lg font-medium text-gray-900">{payee}</span>
@@ -56,11 +99,10 @@ function Repayment() {
             </section>
 
             <section className="space-y-4 mt-6">
-                <span className="text-xl font-bold text-red-600">-250</span>
-                <label htmlFor="payment" className="block font-semibold text-gray-700">Payment</label>
+                <label htmlFor="payment" className="block font-semibold text-gray-700">Payment Amount</label>
                 <input 
                     id="payment"
-                    type="text" 
+                    type="number" 
                     value={amount} 
                     onChange={(e) => setAmount(e.target.value)} 
                     className="w-full p-2 border border-gray-300 rounded-md"

@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { signupUser } from "../api/auth"; // Import API function
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate ,Link} from "react-router-dom"; // Import useNavigate
 
 const schema = yup.object().shape({
     name: yup.string().min(3).max(50).required("Name is required"),
@@ -46,7 +46,7 @@ function Signup() {
             <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded shadow-md w-80">
                 <h2 className="text-xl font-bold mb-4">Sign Up</h2>
 
-                {error && <p className="text-red-500 text-sm mb-2">{error.message}</p>}
+                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
                 {success && <p className="text-green-500 text-sm mb-2">{success}</p>}
 
                 <div className="mb-4">
@@ -68,6 +68,9 @@ function Signup() {
                 <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded" disabled={loading}>
                     {loading ? "Signing Up..." : "Sign Up"}
                 </button>
+                <label className="block text-sm text-center mt-4">
+                    Already have an account? <Link to="/login" className="text-blue-500">Login</Link>
+                </label>
             </form>
         </div>
     );

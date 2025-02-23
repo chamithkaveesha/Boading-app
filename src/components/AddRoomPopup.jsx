@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createRoom } from "../api/createRoom"; 
 import Modal from "../SubComponents/Modal";
 
 function AddRoomPopup({ isOpen, onClose, token, onRoomCreated }) {
@@ -18,25 +19,11 @@ function AddRoomPopup({ isOpen, onClose, token, onRoomCreated }) {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/rooms", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: roomName }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create room");
-      }
-
-      const newRoom = await response.json();
+      const newRoom = await createRoom({ name: roomName }, token); // Use the createRoom function
       onRoomCreated(newRoom); // Callback to update UI
       onClose(); // Close modal
     } catch (error) {
-      console.error("Error:", error);
-      setError("Error creating room. Try again.");
+      setError(error || "Error creating room. Try again.");
     } finally {
       setLoading(false);
     }
@@ -47,7 +34,7 @@ function AddRoomPopup({ isOpen, onClose, token, onRoomCreated }) {
       <h2 className="text-2xl text-black font-semibold">Create Room</h2>
 
       <form className="mt-4" onSubmit={handleCreateRoom}>
-        <div className="mb-4  text-gray-700">
+        <div className="mb-4 text-gray-700">
           <label htmlFor="name" className="block text-sm font-medium">
             Room Name
           </label>
@@ -58,7 +45,6 @@ function AddRoomPopup({ isOpen, onClose, token, onRoomCreated }) {
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
-            
           />
           {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
         </div>
