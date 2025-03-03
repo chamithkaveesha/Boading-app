@@ -1,122 +1,161 @@
-import { useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useGlobalState } from "../context/GlobalState";
+import { fetchRoomUsers} from '../api/Dashboard';
+import { createPayment } from '../api/payment';
+import { getOwner } from '../api/user';
+import { useNavigate } from "react-router-dom";
 
-function Repayment() {
-    const [payer, setPayer] = useState('');
-    const [payee, setPayee] = useState('');
-    const [amount, setAmount] = useState('');
-    const [payerSearchResults, setPayerSearchResults] = useState([]);
-    const [payeeSearchResults, setPayeeSearchResults] = useState([]);
+function RePayment() {
 
-    const handlePayerSearch = async (searchTerm) => {
-        // Simulate an API call to search for payers
-        try {
-            const response = await axios.get(`/api/payers/search?query=${searchTerm}`);
-            setPayerSearchResults(response.data); // Assume response.data is an array of payer names
-        } catch (error) {
-            console.error('Error fetching payer data:', error);
-        }
-    };
+    
+    const [payer, setPayer] = useState("null");
+    const [payee, setPayee] = useState([]);
+    const [totalValue, setTotalValue] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [roomUsers, setRoomUsers] = useState([]);
+    const { room, setRoom } = useGlobalState();
+    const navigate = useNavigate();
 
-    const handlePayeeSearch = async (searchTerm) => {
-        // Simulate an API call to search for payees
-        try {
-            const response = await axios.get(`/api/payees/search?query=${searchTerm}`);
-            setPayeeSearchResults(response.data); // Assume response.data is an array of payee names
-        } catch (error) {
-            console.error('Error fetching payee data:', error);
-        }
-    };
+    useEffect(() => {
+        const fetchOwner = async () => {
+          try {
+            const owner = await getOwner();
+            setPayer(owner);
+          } catch (error) {
+            console.error("Failed to fetch room users", error);
+          }
+        };
+      
+        fetchOwner();
+      }, []);
 
-    const handleConfirm = async () => {
-        // Confirm repayment and send details to backend
-        try {
-            const response = await axios.post('/api/repayments', {
-                payer,
-                payee,
-                amount: parseFloat(amount),
-            });
-            if (response.status === 200) {
-                alert('Repayment confirmed!');
-            }
-        } catch (error) {
-            console.error('Error confirming repayment:', error);
-        }
+
+    useEffect(() => {
+      if (!room || !room.id) {
+        console.warn("Room is not available, redirecting...");
+        navigate('/');  // Redirect user if room is not available
+        return;
+      }
+      const getRoomUsers = async () => {
+          try {
+            () => navigate('/');
+            const users = await fetchRoomUsers(room.id);
+            setRoomUsers(users);
+          } catch (error) {
+            // Todo :Handle error
+            console.error("Failed to fetch room users", error);
+          }
+        };
+      
+        getRoomUsers();
+      }, []);
+      
+    
+    const handlePaymentSubmit = async () => {
+      if (!payer || !payee || totalValue<0) {
+        setError("All fields are required.");
+        return;
+      }
+  
+      setLoading(true);
+      setError('');
+ 
+
+  
+      const paymentData = {
+        roomId: room.id,
+        totalAmount: totalValue,
+        isRepayment: true,
+        payerId: payer.id,
+        recipientIds: [payee.id],
+      };
+  
+      try {
+        await createPayment(paymentData);
+        // Handle successful payment creation, maybe reset state or show success message
+        console.log("Payment successfully created");
+      } catch (err) {
+        setError(err.message || "Failed to create payment");
+      } finally {
+        setLoading(false);
+      }
     };
 
     return (
-        <div className="p-6 bg-gray-100 rounded-lg shadow-lg">
-            <section className="space-y-6">
-                <section className="space-y-4">
-                    <label className="font-semibold text-gray-700">Add Payer</label>
-                    <input 
-                        value={payer} 
-                        onChange={(e) => {
-                            setPayer(e.target.value);
-                            handlePayerSearch(e.target.value);  // Trigger search when input changes
-                        }} 
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                        placeholder="Enter payer name"
-                    />
-                    <p className="text-sm text-gray-500">
-                        {payerSearchResults.map((result, index) => (
-                            <div 
-                                key={index} 
-                                className="py-2 cursor-pointer hover:bg-gray-200"
-                                onClick={() => setPayer(result)}
-                            >
-                                {result}
-                            </div>
-                        ))}
-                    </p>
-                    <span className="text-lg font-medium text-gray-900">{payer}</span>
-                </section>
+        <div className="p-6 bg-gray-200 rounded-lg shadow-lg space-y-6 m-10">
+          <h2 className="text-2xl font-semibold text-gray-900">Re-Payment</h2>
+          <hr className= 'text-gray-400'/>
+          <h3 className="text-xl font-semibold text-gray-900 text-center">{room? room.name : () => navigate('/')}</h3>
+            
+            {/* Payer Section */}
+            <section className="space-y-4">
+                <span className="font-semibold text-gray-700">PAYER:</span>
+                <span className="text-lg font-medium text-gray-900"></span>
+                
+                <div className="text-sm text-gray-800 flex justify-center gap-2">
+                    {/* Display search results for members */}
+                    {roomUsers.map((user, index) => (
+                        <div
+                            key={index}
+                            className={`cursor-pointer p-2 rounded-md ${payer && payer.id === user.id ? 'bg-red-500 text-amber-50' : 'bg-gray-300'}`}
+                            onClick={() => setPayer(user)}
+                        >
+                            {user.name}
+                        </div>
+                    ))}
 
-                <section className="space-y-4">
-                    <label className="font-semibold text-gray-700">Add Payee</label>
-                    <input 
-                        value={payee} 
-                        onChange={(e) => {
-                            setPayee(e.target.value);
-                            handlePayeeSearch(e.target.value);  // Trigger search when input changes
-                        }} 
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                        placeholder="Enter payee name"
-                    />
-                    <p className="text-sm text-gray-500">
-                        {payeeSearchResults.map((result, index) => (
-                            <div 
-                                key={index} 
-                                className="py-2 cursor-pointer hover:bg-gray-200"
-                                onClick={() => setPayee(result)}
-                            >
-                                {result}
-                            </div>
-                        ))}
-                    </p>
-                    <span className="text-lg font-medium text-gray-900">{payee}</span>
-                </section>
+                </div>
             </section>
 
-            <section className="space-y-4 mt-6">
-                <label htmlFor="payment" className="block font-semibold text-gray-700">Payment Amount</label>
-                <input 
-                    id="payment"
-                    type="number" 
-                    value={amount} 
-                    onChange={(e) => setAmount(e.target.value)} 
+            {/*recipient section*/}
+            <section className="space-y-4">
+                <span className="font-semibold text-gray-700">PAYEE:</span>
+                <div className="text-sm text-gray-800 flex justify-center gap-2">
+                    {/* Display search results for members */}
+                    {roomUsers.map((user, index) => (
+                        <div
+                            key={index}
+                            className={`cursor-pointer p-2 rounded-md ${payee && payee.id === user.id ? 'bg-red-500 text-amber-50' : 'bg-gray-300'}`}
+                            onClick={() => setPayee(user)}
+                        >
+                            {user.name}
+                        </div>
+                    ))}
+
+                </div>
+            </section>
+
+            {/* description sec */}
+            <section className="space-y-4">
+                <label className="font-semibold text-gray-700">Description</label>
+                <textarea
+                    placeholder="Description"
                     className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="Enter amount"
                 />
-                <button 
-                    onClick={handleConfirm}
-                    className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition duration-300"
+            </section>
+
+            {/* Total Value Section */}
+            <section className="space-y-4 flex flex-col justify-center">
+                <label className="font-semibold text-gray-700">Total Value</label>
+                <input
+                    type="number"
+                    placeholder="500"
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    value={totalValue}
+                    onChange={(e) => setTotalValue(e.target.value)}
+                />
+                <button
+                    className="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer"
+                    onClick={handlePaymentSubmit}
+                    disabled={loading}
                 >
-                    Confirm
+                    {loading ? 'Processing...' : 'Confirm'}
                 </button>
+                {error && <p className="text-red-500">{error}</p>}
             </section>
         </div>
     );
 }
 
-export default Repayment;
+export default RePayment;

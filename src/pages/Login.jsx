@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { loginUser } from "../api/auth"; 
 import { useState } from "react";
 import { useNavigate,Link } from "react-router-dom";
+// import useStore  from "../components/useStore";
 
 
 const schema = yup.object().shape({
@@ -27,8 +28,13 @@ function Login() {
         try {
             const response = await loginUser(data); // Call login API
             sessionStorage.setItem("token", response.token); // Store JWT token
-    
-            navigate(""); // Redirect to dashboard after login
+            // useStore.getState().triggerUpdate();
+            setTimeout(() => {
+                navigate("/"); // Redirect to dashboard after login
+            }, 1000);
+            
+            
+            // Redirect to dashboard after login
         } catch (err) {
             setError(err.message || "Login failed");
         } finally {
