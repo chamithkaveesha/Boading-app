@@ -2,7 +2,7 @@ import { useState } from "react";
 import { addUserToRoom } from "../api/adduserToRoom"; // Adjust the path as necessary
 import Modal from "../SubComponents/Modal";
 
-function AddMemberPopup({ isOpen, onClose, token, room, onMemberCreated }) {
+function AddMemberPopup({ isOpen, onClose, room, onMemberAdded }) {
 
   if (!room) {
     return null; // Prevent rendering if room is undefined
@@ -14,25 +14,28 @@ function AddMemberPopup({ isOpen, onClose, token, room, onMemberCreated }) {
 
   const handleAddMember = async (e) => {
     e.preventDefault(); // Prevent page refresh
-    setError("");
-
+    setError(""); // Reset error state
+  
     if (!memberName) {
       setError("Please enter a name.");
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
-      const newMember = await addUserToRoom(room.id, { name: memberName, isRegistered: false }, token);
-      onMemberCreated(newMember); // Callback to update UI
+      const newMember = await addUserToRoom(room.id, { name: memberName, isRegistered: false });
+      onMemberAdded(newMember); // Callback to update UI
       onClose(); // Close modal
     } catch (error) {
-      setError(error || "Error adding member. Try again.");
+      // Ensure error is a string or a fallback message
+      const errorMessage = error instanceof Error ? error.message : "Error adding member. Try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

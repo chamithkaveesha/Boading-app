@@ -1,23 +1,22 @@
 import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
-import axios from "axios";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import transaction from "./assets/transaction.svg";
 import SelectTransactionPopup from "./components/SelectTransactionPopup";
-import fetchUser from "./api/fetchUser";
+import {getOwner} from "./api/user";
+import { useGlobalState } from "./context/GlobalState";
+// import useStore from './components/useStore';
+
 
 const RootLayout = () => {
-  const email = "alice.johnson@example.com";
-  const token = sessionStorage.getItem("token");
+  // const updateFlag = useStore((state) => state.updateFlag);
   
-  const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
   const [popup, setPopup] = useState(false);
+  const { user, setUser } = useGlobalState();
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
+  
 
   return (
     <div className="min-h-screen flex flex-col justify-between">
@@ -31,8 +30,8 @@ const RootLayout = () => {
       <SelectTransactionPopup isOpen={popup} onClose={() => setPopup(false)} />
 
 
-      <main>
-        <Outlet />
+      <main className="flex-1 flex">
+        <Outlet className="w-full flex"/>
       </main>
 
       <footer>

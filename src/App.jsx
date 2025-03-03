@@ -9,8 +9,9 @@ import Repayment from "./pages/RePayment";
 import Signup from "./pages/Signup";
 import ErrorPage from "./pages/ErrorPage";
 import DashboardAdmin from "./pages/DashboardAdmin";
-import accountLoader from "./Loaders/accountLoader";
+
 import Test from "./pages/test";
+
 
 import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 import RedirectIfAuthenticated from "./components/RedirectIfAuthenticated"; // Import RedirectIfAuthenticated
@@ -21,7 +22,7 @@ const router = createBrowserRouter(
       {/* Protected Routes - Require Authentication */}
       <Route element={<ProtectedRoute />}>
         <Route index element={<DashboardAdmin />} />
-        <Route path="account" element={<Account />} loader={accountLoader} />
+        <Route path="account" element={<Account />} />
         <Route path="payment" element={<Payment />} />
         <Route path="repayment" element={<Repayment />} />
         {/* <Route path="dashboardadmin" element={<DashboardAdmin />} /> */}

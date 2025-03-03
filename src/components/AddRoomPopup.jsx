@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { createRoom } from "../api/createRoom"; 
+import { createRoom } from "../api/createRoom";
 import Modal from "../SubComponents/Modal";
 
-function AddRoomPopup({ isOpen, onClose, token, onRoomCreated }) {
+function AddRoomPopup({ isOpen, onClose, onRoomCreated }) {
   const [roomName, setRoomName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleCreateRoom = async (e) => {
-    e.preventDefault(); // Prevent page refresh
+    e.preventDefault();
     setError("");
-    
+
     if (!roomName) {
       setError("Please enter a room name.");
       return;
@@ -19,11 +19,11 @@ function AddRoomPopup({ isOpen, onClose, token, onRoomCreated }) {
     setLoading(true);
 
     try {
-      const newRoom = await createRoom({ name: roomName }, token); // Use the createRoom function
-      onRoomCreated(newRoom); // Callback to update UI
+      const newRoom = await createRoom(roomName);
+      onRoomCreated(newRoom); // Notify parent about the new room
       onClose(); // Close modal
     } catch (error) {
-      setError(error || "Error creating room. Try again.");
+      setError(error?.message || "Error creating room. Try again.");
     } finally {
       setLoading(false);
     }
