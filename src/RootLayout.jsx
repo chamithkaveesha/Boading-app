@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import transaction from "./assets/transaction.svg";
@@ -15,18 +15,26 @@ const RootLayout = () => {
   const [error, setError] = useState(null);
   const [popup, setPopup] = useState(false);
   const { user, setUser } = useGlobalState();
+  const location = useLocation();
+  
+  // Check if current page is login or signup
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
   
 
   return (
     <div className="min-h-screen flex flex-col justify-between">
-      <header className="sticky top-0 z-50">
-        <NavBar userDetails={user} />
-      </header>
+      {!isAuthPage && (
+        <header className="sticky top-0 z-50">
+          <NavBar userDetails={user} />
+        </header>
+      )}
 
-      <span onClick={() => setPopup(true)}className="shadow-[0px_0px_15px_5px_rgba(34,197,94,0.5)] cursor-pointer fixed bottom-10 right-10 p-2 bg-green-400 rounded-full flex items-center justify-center z-[100]">
-        <img src={transaction} className="h-10" />
-      </span>
+      {!isAuthPage && (
+        <span onClick={() => setPopup(true)}className="shadow-[0px_0px_15px_5px_rgba(34,197,94,0.5)] cursor-pointer fixed bottom-10 right-10 p-2 bg-green-400 rounded-full flex items-center justify-center z-[100]">
+          <img src={transaction} className="h-10" />
+        </span>
+      )}
       <SelectTransactionPopup isOpen={popup} onClose={() => setPopup(false)} />
 
 
@@ -34,9 +42,11 @@ const RootLayout = () => {
         <Outlet className="w-full flex"/>
       </main>
 
-      <footer>
-        <Footer />
-      </footer>
+      {!isAuthPage && (
+        <footer>
+          <Footer />
+        </footer>
+      )}
     </div>
   );
 };
