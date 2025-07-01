@@ -9,6 +9,7 @@ import Repayment from "./pages/RePayment";
 import Signup from "./pages/Signup";
 import ErrorPage from "./pages/ErrorPage";
 import DashboardAdmin from "./pages/DashboardAdmin";
+import TransactionLog from "./pages/TransactionLog";
 
 import Test from "./pages/test";
 
@@ -25,6 +26,7 @@ const router = createBrowserRouter(
         <Route path="account" element={<Account />} />
         <Route path="payment" element={<Payment />} />
         <Route path="repayment" element={<Repayment />} />
+        <Route path="transactionlog" element={<TransactionLog />} />
         {/* <Route path="dashboardadmin" element={<DashboardAdmin />} /> */}
       </Route>
 

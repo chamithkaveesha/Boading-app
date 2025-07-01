@@ -44,7 +44,7 @@ function Login() {
     
 
     return (
-        <div className="w-full min-h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-green-50 p-4">
+        <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-green-50 p-4">
             <div className="w-full max-w-md">
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
                     {/* Header with gradient */}

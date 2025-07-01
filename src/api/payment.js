@@ -41,7 +41,7 @@ export const getAllPayments = async () => {
   }
 };
 
-export const getPaymentsByRoomId = async (roomId, page = 0, limit = 10) => {
+export const getPaymentsByRoomId = async (roomId, page, limit) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/room/${roomId}`, {
       headers: getAuthHeaders(),
