@@ -6,6 +6,7 @@ import transaction from "./assets/transaction.svg";
 import SelectTransactionPopup from "./components/SelectTransactionPopup";
 import {getOwner} from "./api/user";
 import { useGlobalState } from "./context/GlobalState";
+import { ToastProvider } from "./components/ToastProvider";
 // import useStore from './components/useStore';
 
 
@@ -18,7 +19,21 @@ const RootLayout = () => {
   const location = useLocation();
   
   // Draggable transaction button state
-  const [position, setPosition] = useState({ x: window.innerWidth - 100, y: window.innerHeight - 120 });
+  const [position, setPosition] = useState(() => {
+    // Calculate initial position based on screen size
+    const getButtonSize = () => {
+      if (window.innerWidth >= 1024) return 80; // lg screens
+      if (window.innerWidth >= 768) return 70;  // md screens
+      if (window.innerWidth >= 640) return 60;  // sm screens  
+      return 50; // mobile screens
+    };
+    
+    const buttonSize = getButtonSize();
+    return { 
+      x: window.innerWidth - buttonSize - 20, 
+      y: window.innerHeight - buttonSize - 100 
+    };
+  });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [hasDragged, setHasDragged] = useState(false);
@@ -45,8 +60,15 @@ const RootLayout = () => {
       const newX = e.clientX - dragStart.x;
       const newY = e.clientY - dragStart.y;
       
-      // Keep button within viewport bounds
-      const buttonSize = 60; // Approximate button size
+      // Calculate button size based on screen width
+      const getButtonSize = () => {
+        if (window.innerWidth >= 1024) return 80; // lg screens
+        if (window.innerWidth >= 768) return 70;  // md screens
+        if (window.innerWidth >= 640) return 60;  // sm screens
+        return 50; // mobile screens
+      };
+      
+      const buttonSize = getButtonSize();
       const maxX = window.innerWidth - buttonSize;
       const maxY = window.innerHeight - buttonSize;
       
@@ -88,7 +110,15 @@ const RootLayout = () => {
   // Update position on window resize
   useEffect(() => {
     const handleResize = () => {
-      const buttonSize = 60;
+      // Calculate button size based on screen width
+      const getButtonSize = () => {
+        if (window.innerWidth >= 1024) return 80; // lg screens
+        if (window.innerWidth >= 768) return 70;  // md screens  
+        if (window.innerWidth >= 640) return 60;  // sm screens
+        return 50; // mobile screens
+      };
+      
+      const buttonSize = getButtonSize();
       const maxX = window.innerWidth - buttonSize;
       const maxY = window.innerHeight - buttonSize;
       
@@ -105,42 +135,45 @@ const RootLayout = () => {
   
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {!isAuthPage && (
-        <header className="flex-shrink-0 z-50">
-          <NavBar userDetails={user} />
-        </header>
-      )}
+    <ToastProvider>
+      <div className="min-h-screen flex flex-col">
+        {!isAuthPage && (
+          <header className="flex-shrink-0 z-50">
+            <NavBar userDetails={user} />
+          </header>
+        )}
 
-      {!isAuthPage && (
-        <span 
-          ref={buttonRef}
-          onMouseDown={handleMouseDown}
-          onClick={handleClick}
-          className={`shadow-[0px_0px_15px_5px_rgba(34,197,94,0.5)] cursor-pointer fixed p-2 bg-green-400 rounded-full flex items-center justify-center z-[100] transition-all duration-200 ${
-            isDragging ? 'cursor-grabbing scale-110' : 'cursor-grab hover:scale-105'
-          }`}
-          style={{
-            left: `${position.x}px`,
-            top: `${position.y}px`,
-            userSelect: 'none'
-          }}
-        >
-          <img src={transaction} className="h-15 pointer-events-none" />
-        </span>
-      )}
-      <SelectTransactionPopup isOpen={popup} onClose={() => setPopup(false)} />
+        {!isAuthPage && (
+          <span 
+            ref={buttonRef}
+            onMouseDown={handleMouseDown}
+            onClick={handleClick}
+            className={`shadow-[0px_0px_12px_6px_rgba(34,197,94,0.6)] md:shadow-[0px_0px_16px_8px_rgba(34,197,94,0.7)] lg:shadow-[0px_0px_20px_10px_rgba(34,197,94,0.8)] cursor-pointer fixed p-1.5 sm:p-2 lg:p-2.5 bg-green-400 border-2 border-green-300 rounded-full flex items-center justify-center z-[9999] transition-all duration-200 backdrop-blur-sm ${
+              isDragging ? 'cursor-grabbing scale-110 shadow-[0px_0px_25px_12px_rgba(34,197,94,0.9)]' : 'cursor-grab hover:scale-105 hover:shadow-[0px_0px_18px_9px_rgba(34,197,94,0.8)]'
+            }`}
+            style={{
+              left: `${position.x}px`,
+              top: `${position.y}px`,
+              userSelect: 'none',
+              filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3))'
+            }}
+          >
+            <img src={transaction} className="h-8 sm:h-12 md:h-14 lg:h-16 pointer-events-none drop-shadow-sm" />
+          </span>
+        )}
+        <SelectTransactionPopup isOpen={popup} onClose={() => setPopup(false)} />
 
-      <main className="flex-grow">
-        <Outlet />
-      </main>
+        <main className="flex-grow">
+          <Outlet />
+        </main>
 
-      {!isAuthPage && (
-        <footer className="flex-shrink-0">
-          <Footer />
-        </footer>
-      )}
-    </div>
+        {!isAuthPage && (
+          <footer className="flex-shrink-0">
+            <Footer />
+          </footer>
+        )}
+      </div>
+    </ToastProvider>
   );
 };
 

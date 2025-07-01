@@ -10,8 +10,6 @@ export const fetchRoomsByUserId = async () => {
   try {
     const user = await getOwner();
     const userId = user?.id;
-    console.log("userId", userId);
-    console.log("user", user);
     const response = await axios.get(`${API_BASE_URL}/rooms/roomer/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });

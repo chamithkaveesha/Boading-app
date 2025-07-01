@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { fetchRoomsByUserId, fetchRoomUsers } from "../api/Dashboard";
 import AddRoomPopup from "../components/AddRoomPopup";
 import AddMemberPopup from "../components/AddMemberPopup";
+import AddAccountPopup from "../components/AddAccountPopup";
 import ConfirmationModal from "../components/ConfirmationModal";
 import {deleteRoom} from "../api/deleteRoom";
 import { useGlobalState } from "../context/GlobalState";
@@ -9,10 +10,14 @@ import { useCurrency } from "../context/CurrencyContext";
 import {getOwner} from "../api/user";
 import {getPairwiseBalances,getPaymentsByRoomId} from "../api/payment";
 import { useNavigate } from "react-router-dom";
+import { deleteUserFromRoom, addAccountToMember } from "../api/room";
+import { useToast } from "../components/ToastProvider";
+
 
 function DashboardAdmin() {
   const navigate = useNavigate();
   const { formatCurrencyWithSign, formatCurrency, currency, setCurrency } = useCurrency();
+  const { showSuccess, showError, showWarning, showInfo } = useToast();
 
   const [rooms, setRooms] = useState([]);
   
@@ -22,7 +27,9 @@ function DashboardAdmin() {
   const [loadingRoomMembers, setLoadingRoomMembers] = useState(true);
   const [createRoomPopup, setCreateRoomPopup] = useState(false);
   const [addMemberPopup, setAddMemberPopup] = useState(false);
+  const [addAccountPopup, setAddAccountPopup] = useState(false);
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [deleteUserConfirmationOpen, setDeleteUserConfirmationOpen] = useState(false);
   const [updateRooms, setUpdateRooms] = useState(false);  
   const [updateMembers, setUpdateMembers] = useState(false);
   const [memberBalances, setMemberBalances] = useState([]);
@@ -100,7 +107,7 @@ function DashboardAdmin() {
 
           setMemberBalances(balanceArr);
         } catch (error) {
-          console.error("Error fetching pairwise balances:", error);
+          showError("Failed to load member balances. Please refresh the page and try again.");
         }
       } else {
       setMemberBalances([]);
@@ -135,7 +142,7 @@ function DashboardAdmin() {
 
           setMemberWiseBalances(balanceArr);
         } catch (error) {
-          console.error("Error fetching memberwise balances:", error);
+          showError("Failed to load detailed member balances. Please try selecting the member again.");
         }
       } else {
       setMemberBalances([]);
@@ -152,7 +159,7 @@ function DashboardAdmin() {
           setPayments(paymentsData);
         }
         catch(error){
-          console.error("Error fetching payments:", error);
+          showError("Failed to load recent payments. Please refresh the page to try again.");
         }
       }
     };
@@ -166,11 +173,13 @@ function DashboardAdmin() {
   const handleRoomCreated = () => {
     setCreateRoomPopup(false);
     setUpdateRooms(!updateRooms);
+    showSuccess("Room created successfully!");
   }
 
   const handleMemberAdded = () => {
     setAddMemberPopup(false);
     setUpdateMembers(!updateMembers);
+    showSuccess("Member added successfully!");
   }
 
   const handleDeleteRoom = async () => {
@@ -181,8 +190,9 @@ function DashboardAdmin() {
         setRooms(newRooms);
         setRoom(newRooms[0] || null); 
         setDeleteConfirmationOpen(false);
+        showSuccess(`Room "${room.name}" has been successfully deleted.`);
       } catch (error) {
-        console.error("Error deleting room:", error);
+        showError("Failed to delete the room. Please try again or contact support if the problem persists.");
       }
     }
   };
@@ -195,6 +205,47 @@ function DashboardAdmin() {
   const handleViewAllPayments = () => {
     if (room) {
       navigate(`/transactionlog`);
+    }
+  };
+
+  const handleDeleteRoomer = async () => {
+    if (member && room) {
+      try {
+        await deleteUserFromRoom(member.id, room.id);
+        const newMembers = members.filter((m) => m.id !== member.id);
+        setMembers(newMembers); 
+        setMember(newMembers[0] || null);
+        setUpdateMembers(!updateMembers);
+        setDeleteUserConfirmationOpen(false);
+        showSuccess(`${member.name} has been successfully removed from ${room.name}.`);
+      } catch (error) {
+        showError("Failed to remove member from room. Please try again or contact support if the problem persists.");
+      }
+    }
+  };
+
+  const handleDeleteRoomerClick = () => {
+    setDeleteUserConfirmationOpen(true);
+  };
+
+  const handleAddAccountToMember = async (email) => {
+    if (email && room) {
+      try {
+        await addAccountToMember(email, member.id);
+        setAddAccountPopup(false);
+        setUpdateMembers(!updateMembers);
+        showSuccess(`Account successfully added to ${member.name}.`);
+      } catch (error) {
+        showError("Failed to add account to member. Please check the email address and try again.");
+      }
+    }
+  };
+
+  const openAddAccountPopup = () => {
+    if (member) {
+      setAddAccountPopup(true);
+    } else {
+      showWarning("Please select a member first to add an account.");
     }
   };
 
@@ -241,7 +292,7 @@ function DashboardAdmin() {
                       <button
                         key={roomItem.id}
                         onClick={() => handleSelectRoom(roomItem)}
-                        className={`w-full p-3 sm:p-3 rounded-lg sm:rounded-xl font-medium transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm ${
+                        className={`w-full p-3 sm:p-3 rounded-lg sm:rounded-xl font-medium transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm cursor-pointer ${
                           room?.id === roomItem.id 
                             ? 'bg-green-600 text-white shadow-lg scale-105' 
                             : 'bg-gray-100 text-gray-800 hover:bg-gray-200 hover:shadow-md'
@@ -258,7 +309,7 @@ function DashboardAdmin() {
                     
                     <button
                       onClick={() => setCreateRoomPopup(true)}
-                      className="w-full p-3 sm:p-3 rounded-lg sm:rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs sm:text-sm"
+                      className="w-full p-3 sm:p-3 rounded-lg sm:rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs sm:text-sm cursor-pointer"
                     >
                       <div className="flex items-center justify-center">
                         <span className="text-lg mr-1">+</span>
@@ -294,7 +345,7 @@ function DashboardAdmin() {
                     </div>
                     {room && (
                       <button 
-                        className="bg-red-700 hover:bg-red-800 text-white font-bold px-3 sm:px-4 py-2 sm:py-2 rounded-lg shadow-lg hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm"
+                        className="bg-red-700 hover:bg-red-800 text-white font-bold px-3 sm:px-4 py-2 sm:py-2 rounded-lg shadow-lg hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm cursor-pointer"
                         onClick={handleDeleteRoomClick}
                       >
                         <div className="flex items-center">
@@ -363,7 +414,7 @@ function DashboardAdmin() {
                             
                             <button
                               onClick={() => setAddMemberPopup(true)}
-                              className="w-full p-3 sm:p-3 rounded-lg sm:rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs sm:text-sm"
+                              className="w-full p-3 sm:p-3 rounded-lg sm:rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs sm:text-sm cursor-pointer"
                             >
                               <div className="flex items-center justify-center">
                                 <span className="text-lg mr-1">+</span>
@@ -396,11 +447,11 @@ function DashboardAdmin() {
                         <div className="flex space-x-2 sm:space-x-3">
                           {member && (
                             <>
-                              <button className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm font-medium">
+                              <button onClick={openAddAccountPopup} className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm font-medium cursor-pointer">
                                 <span className="hidden sm:inline">Add Account</span>
                                 <span className="sm:hidden">Add</span>
                               </button>
-                              <button className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm font-medium">
+                              <button onClick={handleDeleteRoomerClick} className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm font-medium cursor-pointer">
                                 <span className="hidden sm:inline">Remove</span>
                                 <span className="sm:hidden">Remove</span>
                               </button>
@@ -546,7 +597,7 @@ function DashboardAdmin() {
                             </div>
                             
                             <div className="mt-3 sm:mt-4 text-center flex-shrink-0">
-                              <button onClick={handleViewAllPayments} className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 sm:py-2 px-4 sm:px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-xs sm:text-sm">
+                              <button onClick={handleViewAllPayments} className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 sm:py-2 px-4 sm:px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-xs sm:text-sm cursor-pointer">
                                 View All Payments
                               </button>
                             </div>
@@ -580,6 +631,26 @@ function DashboardAdmin() {
         confirmText="Delete Room"
         cancelText="Cancel"
         isDangerous={true}
+      />
+
+      {/* User Removal Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={deleteUserConfirmationOpen}
+        onClose={() => setDeleteUserConfirmationOpen(false)}
+        onConfirm={handleDeleteRoomer}
+        title="Remove Member"
+        message={`Are you sure you want to remove "${member?.name}" from "${room?.name}"? This action will remove the member from the room but their transaction history will be preserved.`}
+        confirmText="Remove Member"
+        cancelText="Cancel"
+        isDangerous={true}
+      />
+
+      {/* Add Account Modal */}
+      <AddAccountPopup
+        isOpen={addAccountPopup}
+        onClose={() => setAddAccountPopup(false)}
+        onAddAccount={handleAddAccountToMember}
+        memberName={member?.name}
       />
     </div>
   );

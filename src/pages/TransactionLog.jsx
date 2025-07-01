@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { useGlobalState } from "../context/GlobalState";
 import { getPaymentsByRoomId } from "../api/payment";
 import { fetchRoomUsers } from "../api/Dashboard";
+import { useToast } from "../components/ToastProvider";
 
 function TransactionLog() {
   const { room } = useGlobalState();
+  const { showError } = useToast();
   const [payments, setPayments] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +22,7 @@ function TransactionLog() {
           const membersData = await fetchRoomUsers(room.id);
           setMembers(membersData);
         } catch (error) {
-          console.error("Error fetching members:", error);
+          showError("Failed to load room members. Please refresh the page and try again.");
         }
       }
     };
@@ -39,7 +41,7 @@ function TransactionLog() {
           if (paymentsData.content) {
             // Paginated response
             setPayments(paymentsData.content);
-            setTotalPages(paymentsData.totalPages || 1);
+            setTotalPages(parseInt(paymentsData.totalPages) || 1);
           } else if (Array.isArray(paymentsData)) {
             // Array response
             setPayments(paymentsData);
@@ -51,7 +53,7 @@ function TransactionLog() {
           }
 
         } catch (error) {
-          console.error("Error fetching payments:", error);
+          showError("Failed to load transaction history. Please refresh the page and try again.");
           setError("Failed to load transaction data");
           setPayments([]);
           setTotalPages(1);
@@ -65,13 +67,15 @@ function TransactionLog() {
 
   const handlePreviousPage = () => {
     if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
+      setCurrentPage(prev => prev - 1);
+      console.log("Moving to previous page", currentPage - 1);
     }
   };
 
   const handleNextPage = () => {
     if (currentPage < totalPages - 1) {
-      setCurrentPage(currentPage + 1);
+      setCurrentPage(prev => prev + 1);
+      console.log("Moving to next page", currentPage + 1);
     }
   };
 
@@ -211,15 +215,15 @@ function TransactionLog() {
                 </span>
               )}
               <div className="text-xs text-gray-500 mt-1">
-                Debug: Page {currentPage}, Total {totalPages}, Has Previous: {currentPage > 0 ? 'Yes' : 'No'}, Has Next: {currentPage < totalPages - 1 ? 'Yes' : 'No'}
+                Debug: Page {currentPage}, Total {totalPages}, Has Previous: {currentPage > 0 ? 'Yes' : 'No'}, Has Next: {currentPage < totalPages - 1 ? 'Yes' : 'No'}, Loading: {loading ? 'Yes' : 'No'}
               </div>
             </div>
             <div className="flex space-x-2">
               <button
                 onClick={handlePreviousPage}
-                disabled={currentPage === 0}
+                disabled={loading || currentPage <= 0}
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  currentPage === 0
+                  loading || currentPage <= 0
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-gray-600 text-white hover:bg-gray-700 transform hover:scale-105'
                 }`}
@@ -228,9 +232,9 @@ function TransactionLog() {
               </button>
               <button
                 onClick={handleNextPage}
-                disabled={currentPage >= totalPages - 1 || totalPages === 0}
+                disabled={loading || currentPage >= totalPages - 1 || totalPages <= 1}
                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  currentPage >= totalPages - 1 || totalPages === 0
+                  loading || currentPage >= totalPages - 1 || totalPages <= 1
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-green-600 text-white hover:bg-green-700 transform hover:scale-105'
                 }`}

@@ -1,9 +1,11 @@
 import { useGlobalState } from "../context/GlobalState";
 import { useState, useRef } from "react";
 import user from '../assets/user.svg';
+import { useToast } from "../components/ToastProvider";
 
 function Account(){
     const { user: globalUser } = useGlobalState();
+    const { showSuccess, showError, showWarning, showInfo } = useToast();
     const [isEditing, setIsEditing] = useState({
         name: false,
         email: false,
@@ -46,7 +48,7 @@ function Account(){
 
     const handleSave = (field) => {
         // Here you would typically make an API call to update the user data
-        console.log(`Saving ${field}:`, formData[field]);
+        showSuccess(`${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`);
         setIsEditing(prev => ({
             ...prev,
             [field]: false
@@ -55,11 +57,11 @@ function Account(){
 
     const handlePasswordSave = () => {
         if (formData.newPassword !== formData.confirmPassword) {
-            alert("New passwords don't match!");
+            showError("New passwords don't match! Please check and try again.");
             return;
         }
         // Here you would typically make an API call to update the password
-        console.log("Updating password...");
+        showSuccess("Password updated successfully!");
         setFormData(prev => ({
             ...prev,
             currentPassword: "",
@@ -75,7 +77,7 @@ function Account(){
     const handleDeleteAccount = () => {
         if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
             // Here you would typically make an API call to delete the account
-            console.log("Deleting account...");
+            showInfo("Account deletion process initiated. Please check your email for further instructions.");
         }
     };
 

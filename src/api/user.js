@@ -8,15 +8,14 @@ const API_BASE_URL = "http://localhost:8080/api/users";
 const getEmailFromToken = () => {
   const token = sessionStorage.getItem("token");
   if (!token) {
-    console.error("No token available.");
-    return null;}
+    throw new Error("No authentication token available. Please log in again.");
+  }
 
   try {
     const decoded = jwtDecode(token);;
     return decoded?.sub || null;
   } catch (error) {
-    console.error("Error decoding token:", error);
-    return null;
+    throw new Error("Invalid authentication token. Please log in again.");
   }
 };
 
@@ -25,8 +24,7 @@ export const getUserByName = async (name) => {
     const response = await axios.get(`${API_BASE_URL}/${encodeURIComponent(name)}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching user by name:", error);
-    throw error;
+    throw error.response?.data || error.message || "Failed to fetch user information";
   }
 };
 
@@ -34,8 +32,8 @@ export const getOwner = async () => {
   const token = sessionStorage.getItem("token");
   const email = getEmailFromToken(); // Fetch email at function call time
   if (!email) {
-    console.error("No email available.");
-    return null;}; // Avoid making a request if email is missing
+    throw new Error("Unable to retrieve user email. Please log in again.");
+  }
 
   try {
     const response = await axios.get(`${API_BASE_URL}/email`, {
@@ -52,16 +50,14 @@ export const getOwner = async () => {
     }
     return response.data;
   } catch (error) {
-    console.error("Error fetching user by email:", error);
-    return null; // Return null instead of throwing to avoid breaking the UI
+    throw error.response?.data || error.message || "Failed to fetch user information";
   }
 };
 
 export const deleteUser = async () => {
   const token = sessionStorage.getItem("token"); // Fetch token at function call time
   if (!token) {
-    console.error("No token available.");
-    return;
+    throw new Error("No authentication token available. Please log in again.");
   }
 
   try {
@@ -69,7 +65,6 @@ export const deleteUser = async () => {
       headers: { Authorization: `Bearer ${token}` }
     });
   } catch (error) {
-    console.error("Error deleting user:", error);
-    throw error;
+    throw error.response?.data || error.message || "Failed to delete user account";
   }
 };

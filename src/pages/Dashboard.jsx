@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import RoomTable from "../components/RoomTable";
 import AddMemberPopup from "../components/AddMemberPopup";
+import { useToast } from "../components/ToastProvider";
 
 const rooms = [
     { roomName: "room1", id: 1, members: ["member1", "member2", "member3"], balances: [1, 2, 3] },
@@ -8,6 +9,7 @@ const rooms = [
 ];
 
 function Dashboard() {
+    const { showWarning } = useToast();
     const [isPopupOpen, setPopupOpen] = useState(false);
     const [newRoomName, setRoomName] = useState(""); 
     const [members, setMembers] = useState([]);
@@ -25,7 +27,7 @@ function Dashboard() {
             // implement the create room logic here
             
         } else {
-            alert("Please provide a room name and add at least one member.");
+            showWarning("Please provide a room name and add at least one member.");
         }
     };
 
