@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { fetchRoomsByUserId, fetchRoomUsers } from "../api/Dashboard";
 import AddRoomPopup from "../components/AddRoomPopup";
 import AddMemberPopup from "../components/AddMemberPopup";
+import ConfirmationModal from "../components/ConfirmationModal";
 import {deleteRoom} from "../api/deleteRoom";
 import { useGlobalState } from "../context/GlobalState";
 import { useCurrency } from "../context/CurrencyContext";
@@ -21,6 +22,7 @@ function DashboardAdmin() {
   const [loadingRoomMembers, setLoadingRoomMembers] = useState(true);
   const [createRoomPopup, setCreateRoomPopup] = useState(false);
   const [addMemberPopup, setAddMemberPopup] = useState(false);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [updateRooms, setUpdateRooms] = useState(false);  
   const [updateMembers, setUpdateMembers] = useState(false);
   const [memberBalances, setMemberBalances] = useState([]);
@@ -174,15 +176,19 @@ function DashboardAdmin() {
   const handleDeleteRoom = async () => {
     if (room) {
       try {
-
         await deleteRoom(room.id);
         const newRooms = rooms.filter((r) => r.id !== room.id);
         setRooms(newRooms);
         setRoom(newRooms[0] || null); 
+        setDeleteConfirmationOpen(false);
       } catch (error) {
         console.error("Error deleting room:", error);
       }
     }
+  };
+
+  const handleDeleteRoomClick = () => {
+    setDeleteConfirmationOpen(true);
   };
   
 
@@ -201,8 +207,8 @@ function DashboardAdmin() {
       </div> */}
 
       {/* Main Content */}
-      <div className="flex-1 p-3 sm:p-4 overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-4 h-full">
+      <div className="flex-1 p-3 sm:p-4 flex flex-col min-h-0">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-4 flex-1 min-h-0">
           {/* Rooms Sidebar */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl lg:rounded-2xl shadow-xl h-full overflow-hidden flex flex-col">
@@ -224,7 +230,7 @@ function DashboardAdmin() {
                 </div>
               </div>
               
-              <div className="p-3 sm:p-4 flex-1 overflow-y-auto">
+              <div className="p-3 sm:p-4 flex-1 overflow-y-auto min-h-0">
                 {loadingRooms ? (
                   <div className="flex justify-center items-center h-20 sm:h-40">
                     <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-gray-800"></div>
@@ -277,25 +283,19 @@ function DashboardAdmin() {
               {/* Room Header */}
               <div className="bg-gradient-to-r from-green-700 to-black p-4 sm:p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl sm:text-3xl font-bold text-white">
-                      {room ? room.name : "Select a Room"}
-                    </h2>
-                    <p className="text-green-100 mt-1 text-sm sm:text-base">
-                      {room ? `Manage ${room.name} details` : "Choose a room to get started"}
-                    </p>
-                  </div>
                   <div className="flex items-center space-x-3 sm:space-x-4">
-                    {room && (
-                      <div className="text-right">
-                        <div className="text-green-100 text-xs sm:text-sm">Active Members</div>
-                        <div className="text-lg sm:text-2xl font-bold text-white">{members.length}</div>
-                      </div>
-                    )}
+                    <div>
+                      <h2 className="text-xl sm:text-3xl font-bold text-white">
+                        {room ? room.name : "Select a Room"}
+                      </h2>
+                      <p className="text-green-100 mt-1 text-sm sm:text-base">
+                        {room ? `Manage ${room.name} details` : "Choose a room to get started"}
+                      </p>
+                    </div>
                     {room && (
                       <button 
                         className="bg-red-700 hover:bg-red-800 text-white font-bold px-3 sm:px-4 py-2 sm:py-2 rounded-lg shadow-lg hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm"
-                        onClick={handleDeleteRoom}
+                        onClick={handleDeleteRoomClick}
                       >
                         <div className="flex items-center">
                           <span className="text-sm sm:text-lg mr-1 sm:mr-2">🗑️</span>
@@ -303,6 +303,14 @@ function DashboardAdmin() {
                           <span className="sm:hidden">Delete</span>
                         </div>
                       </button>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    {room && (
+                      <div className="text-right">
+                        <div className="text-green-100 text-xs sm:text-sm">Active Members</div>
+                        <div className="text-lg sm:text-2xl font-bold text-white">{members.length}</div>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -319,7 +327,7 @@ function DashboardAdmin() {
                       
                       <div className="p-1"></div>
                       
-                      <div className="p-3 sm:p-3 flex-1 overflow-y-auto">
+                      <div className="p-3 sm:p-3 flex-1 overflow-y-auto min-h-0">
                         {loadingRoomMembers ? (
                           <div className="flex justify-center items-center h-20 sm:h-40">
                             <div className="animate-spin rounded-full h-4 w-4 sm:h-6 sm:w-6 border-b-2 border-gray-600"></div>
@@ -388,11 +396,11 @@ function DashboardAdmin() {
                         <div className="flex space-x-2 sm:space-x-3">
                           {member && (
                             <>
-                              <button className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm font-medium">
-                                <span className="hidden sm:inline">Add Payment</span>
+                              <button className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm font-medium">
+                                <span className="hidden sm:inline">Add Account</span>
                                 <span className="sm:hidden">Add</span>
                               </button>
-                              <button className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm font-medium">
+                              <button className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm font-medium">
                                 <span className="hidden sm:inline">Remove</span>
                                 <span className="sm:hidden">Remove</span>
                               </button>
@@ -411,7 +419,7 @@ function DashboardAdmin() {
                                 <div className="text-xs sm:text-sm text-gray-600">Balance with others</div>
                               </div>
                               
-                              <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-3">
+                              <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-3 min-h-0">
                                 {members.filter(memberItem => memberItem.id !== member.id).map((memberItem, index) => {
                                   const originalIndex = members.findIndex(m => m.id === memberItem.id);
                                   return (
@@ -538,7 +546,7 @@ function DashboardAdmin() {
                             </div>
                             
                             <div className="mt-3 sm:mt-4 text-center flex-shrink-0">
-                              <button onClick={handleViewAllPayments} className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 sm:py-2 px-4 sm:px-6 rounded-lg transition-all duration-200 shadow-md text-xs sm:text-sm">
+                              <button onClick={handleViewAllPayments} className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 sm:py-2 px-4 sm:px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-xs sm:text-sm">
                                 View All Payments
                               </button>
                             </div>
@@ -561,6 +569,18 @@ function DashboardAdmin() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={deleteConfirmationOpen}
+        onClose={() => setDeleteConfirmationOpen(false)}
+        onConfirm={handleDeleteRoom}
+        title="Delete Room"
+        message={`Are you sure you want to delete "${room?.name}"? This action cannot be undone and will permanently remove all room data, members, and transaction history.`}
+        confirmText="Delete Room"
+        cancelText="Cancel"
+        isDangerous={true}
+      />
     </div>
   );
 }

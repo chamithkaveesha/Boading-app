@@ -160,7 +160,7 @@ function Account(){
                                             <span className="flex-1 text-gray-800 text-lg">{formData.name}</span>
                                             <button
                                                 onClick={() => handleEdit('name')}
-                                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
                                             >
                                                 Edit
                                             </button>
@@ -199,7 +199,7 @@ function Account(){
                                             <span className="flex-1 text-gray-800 text-lg">{formData.email}</span>
                                             <button
                                                 onClick={() => handleEdit('email')}
-                                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
                                             >
                                                 Edit
                                             </button>
@@ -254,7 +254,7 @@ function Account(){
                                         <span className="flex-1 text-gray-800 text-lg">••••••••••••</span>
                                         <button
                                             onClick={() => handleEdit('password')}
-                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
                                         >
                                             Change Password
                                         </button>
