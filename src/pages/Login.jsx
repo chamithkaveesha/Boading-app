@@ -30,7 +30,7 @@ function Login() {
             sessionStorage.setItem("token", response.token); // Store JWT token
             // useStore.getState().triggerUpdate();
             setTimeout(() => {
-                navigate("/"); // Redirect to dashboard after login
+                navigate("/dashboardAdmin"); // Redirect to dashboard after login
             }, 1000);
             
             

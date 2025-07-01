@@ -37,7 +37,7 @@ function RePayment() {
     useEffect(() => {
       if (!room || !room.id) {
         console.warn("Room is not available, redirecting...");
-        navigate('/');  // Redirect user if room is not available
+        navigate('/dashboardAdmin');  // Redirect user if room is not available
         return;
       }
       const getRoomUsers = async () => {

@@ -21,7 +21,7 @@ function NavBar({ userDetails }) {
             <div className=" flex justify-between items-center mx-auto py-2 px-4">
                 <h1 
                     className="text-lg font-bold text-gray-50 ml-5 cursor-pointer hover:text-green-200 transition-colors duration-200"
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/dashboardAdmin')}
                 >
                     බෝඩිම් TIKKA 
                 </h1>
@@ -36,7 +36,10 @@ function NavBar({ userDetails }) {
                         {userDetails ? userDetails.name: "Loading..."}
                     </span>
                     
-                    <span className='p-2 mr-5 bg-gray-50 rounded-full flex items-center justify-center'>
+                    <span 
+                        className='p-2 mr-5 bg-gray-50 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors duration-200'
+                        onClick={() => navigate('/account')}
+                    >
                         <img src={user} alt="user" className="w-6 h-6" />
                     </span>
                  

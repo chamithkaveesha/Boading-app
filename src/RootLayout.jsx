@@ -25,7 +25,7 @@ const RootLayout = () => {
   const buttonRef = useRef(null);
   
   // Check if current page is login or signup
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/';
 
   // Handle mouse down for dragging
   const handleMouseDown = (e) => {
@@ -105,7 +105,7 @@ const RootLayout = () => {
   
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="min-h-screen flex flex-col">
       {!isAuthPage && (
         <header className="flex-shrink-0 z-50">
           <NavBar userDetails={user} />
@@ -131,7 +131,7 @@ const RootLayout = () => {
       )}
       <SelectTransactionPopup isOpen={popup} onClose={() => setPopup(false)} />
 
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1">
         <Outlet />
       </main>
 
