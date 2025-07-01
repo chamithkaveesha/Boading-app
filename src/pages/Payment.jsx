@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useGlobalState } from "../context/GlobalState";
+import { useCurrency } from "../context/CurrencyContext";
 import { fetchRoomUsers} from '../api/Dashboard';
 import { createPayment } from '../api/payment';
 import { getOwner } from '../api/user';
 import { useNavigate } from "react-router-dom";
 
 function Payment() {
-
+    const { currency } = useCurrency();
     
     const [payer, setPayer] = useState(null);
     const [recipients, setRecipients] = useState([]);
@@ -126,7 +127,7 @@ function Payment() {
             // Auto-hide success popup and navigate to home after 3 seconds
             setTimeout(() => {
                 setShowSuccessPopup(false);
-                navigate('/');
+                navigate('/dashboardAdmin');
             }, 3000);
         } catch (err) {
             setError(err.message || "Failed to create payment");
@@ -267,7 +268,7 @@ function Payment() {
                             </div>
                             <div className="relative">
                                 <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
-                                    LKR
+                                    {currency}
                                 </span>
                                 <input
                                     type="number"

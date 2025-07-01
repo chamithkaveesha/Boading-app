@@ -131,7 +131,7 @@ const RootLayout = () => {
       )}
       <SelectTransactionPopup isOpen={popup} onClose={() => setPopup(false)} />
 
-      <main className="flex-1">
+      <main className="flex-grow">
         <Outlet />
       </main>
 

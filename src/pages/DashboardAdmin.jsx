@@ -4,12 +4,14 @@ import AddRoomPopup from "../components/AddRoomPopup";
 import AddMemberPopup from "../components/AddMemberPopup";
 import {deleteRoom} from "../api/deleteRoom";
 import { useGlobalState } from "../context/GlobalState";
+import { useCurrency } from "../context/CurrencyContext";
 import {getOwner} from "../api/user";
 import {getPairwiseBalances,getPaymentsByRoomId} from "../api/payment";
 import { useNavigate } from "react-router-dom";
 
 function DashboardAdmin() {
   const navigate = useNavigate();
+  const { formatCurrencyWithSign, formatCurrency, currency, setCurrency } = useCurrency();
 
   const [rooms, setRooms] = useState([]);
   
@@ -191,7 +193,7 @@ function DashboardAdmin() {
   };
 
   return (
-    <div className="h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col pt-6">
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col">
       {/* Header */}
       {/* <div className="flex-shrink-0 p-6 text-center">
         <h1 className="text-4xl font-bold text-gray-800 mb-2">Boarding Management</h1>
@@ -199,27 +201,41 @@ function DashboardAdmin() {
       </div> */}
 
       {/* Main Content */}
-      <div className="flex-1 px-6 pb-6 overflow-hidden">
-        <div className="grid grid-cols-12 gap-6 h-full">
+      <div className="flex-1 p-3 sm:p-4 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-4 h-full">
           {/* Rooms Sidebar */}
-          <div className="col-span-2">
-            <div className="bg-white rounded-2xl shadow-xl h-full overflow-hidden">
-              <div className="bg-gradient-to-r from-black to-green-700 p-4">
-                <h2 className="text-lg font-bold text-white text-center">ROOMS</h2>
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl lg:rounded-2xl shadow-xl h-full overflow-hidden flex flex-col">
+              <div className="bg-gradient-to-r from-black to-green-700 p-3 sm:p-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm sm:text-lg font-bold text-white text-center">ROOMS</h2>
+                  {/* Currency Selector */}
+                  <select
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    className="text-xs bg-white text-gray-800 rounded px-2 sm:px-2 py-1"
+                  >
+                    <option value="LKR">LKR</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="INR">INR</option>
+                  </select>
+                </div>
               </div>
               
-              <div className="p-4 flex-1 overflow-y-auto" style={{maxHeight: 'calc(100vh - 300px)'}}>
+              <div className="p-3 sm:p-4 flex-1 overflow-y-auto">
                 {loadingRooms ? (
-                  <div className="flex justify-center items-center h-40">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
+                  <div className="flex justify-center items-center h-20 sm:h-40">
+                    <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-gray-800"></div>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-3 sm:space-y-3">
                     {rooms.map((roomItem) => (
                       <button
                         key={roomItem.id}
                         onClick={() => handleSelectRoom(roomItem)}
-                        className={`w-full p-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 text-sm ${
+                        className={`w-full p-3 sm:p-3 rounded-lg sm:rounded-xl font-medium transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm ${
                           room?.id === roomItem.id 
                             ? 'bg-green-600 text-white shadow-lg scale-105' 
                             : 'bg-gray-100 text-gray-800 hover:bg-gray-200 hover:shadow-md'
@@ -236,7 +252,7 @@ function DashboardAdmin() {
                     
                     <button
                       onClick={() => setCreateRoomPopup(true)}
-                      className="w-full p-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm"
+                      className="w-full p-3 sm:p-3 rounded-lg sm:rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs sm:text-sm"
                     >
                       <div className="flex items-center justify-center">
                         <span className="text-lg mr-1">+</span>
@@ -256,34 +272,35 @@ function DashboardAdmin() {
           </div>
 
           {/* Main Content */}
-          <div className="col-span-10">
-            <div className="bg-white rounded-2xl shadow-xl h-full overflow-hidden">
+          <div className="lg:col-span-10">
+            <div className="bg-white rounded-xl lg:rounded-2xl shadow-xl h-full overflow-hidden flex flex-col">
               {/* Room Header */}
-              <div className="bg-gradient-to-r from-green-700 to-black p-6">
+              <div className="bg-gradient-to-r from-green-700 to-black p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-3xl font-bold text-white">
+                    <h2 className="text-xl sm:text-3xl font-bold text-white">
                       {room ? room.name : "Select a Room"}
                     </h2>
-                    <p className="text-green-100 mt-1">
+                    <p className="text-green-100 mt-1 text-sm sm:text-base">
                       {room ? `Manage ${room.name} details` : "Choose a room to get started"}
                     </p>
                   </div>
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-3 sm:space-x-4">
                     {room && (
                       <div className="text-right">
-                        <div className="text-green-100 text-sm">Active Members</div>
-                        <div className="text-2xl font-bold text-white">{members.length}</div>
+                        <div className="text-green-100 text-xs sm:text-sm">Active Members</div>
+                        <div className="text-lg sm:text-2xl font-bold text-white">{members.length}</div>
                       </div>
                     )}
                     {room && (
                       <button 
-                        className="bg-red-700 hover:bg-red-800 text-white font-bold px-4 py-2 rounded-lg shadow-lg hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 text-sm"
+                        className="bg-red-700 hover:bg-red-800 text-white font-bold px-3 sm:px-4 py-2 sm:py-2 rounded-lg shadow-lg hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm"
                         onClick={handleDeleteRoom}
                       >
                         <div className="flex items-center">
-                          <span className="text-lg mr-2">🗑️</span>
-                          <span>Delete Room</span>
+                          <span className="text-sm sm:text-lg mr-1 sm:mr-2">🗑️</span>
+                          <span className="hidden sm:inline">Delete Room</span>
+                          <span className="sm:hidden">Delete</span>
                         </div>
                       </button>
                     )}
@@ -292,44 +309,44 @@ function DashboardAdmin() {
               </div>
 
               {room ? (
-                <div className="grid grid-cols-12 h-full">
+                <div className="flex flex-col lg:grid lg:grid-cols-12 flex-1 min-h-0 gap-4 lg:gap-0">
                   {/* Members Section */}
-                  <div className="col-span-3 border-r border-gray-200">
+                  <div className="lg:col-span-3 lg:border-r border-gray-200">
                     <div className="h-full flex flex-col">
-                      <div className="bg-gray-800 p-3 flex-shrink-0">
-                        <h3 className="text-lg font-bold text-white text-center">MEMBERS</h3>
+                      <div className="bg-gray-800 p-3 sm:p-3 flex-shrink-0">
+                        <h3 className="text-sm sm:text-lg font-bold text-white text-center">MEMBERS</h3>
                       </div>
                       
                       <div className="p-1"></div>
                       
-                      <div className="p-3 flex-1 overflow-y-auto" style={{maxHeight: 'calc(100vh - 400px)'}}>
+                      <div className="p-3 sm:p-3 flex-1 overflow-y-auto">
                         {loadingRoomMembers ? (
-                          <div className="flex justify-center items-center h-40">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-600"></div>
+                          <div className="flex justify-center items-center h-20 sm:h-40">
+                            <div className="animate-spin rounded-full h-4 w-4 sm:h-6 sm:w-6 border-b-2 border-gray-600"></div>
                           </div>
                         ) : (
-                          <div className="space-y-2">
+                          <div className="space-y-2 sm:space-y-2 lg:space-y-2">
                             {members.map((memberItem, index) => (
                               <div
                                 key={index}
                                 onClick={() => setMember(memberItem)}
-                                className={`cursor-pointer p-3 rounded-xl transition-all duration-300 transform hover:scale-105 ${
+                                className={`cursor-pointer p-3 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 ${
                                   member?.id === memberItem.id 
                                     ? 'bg-green-50 border-2 border-green-500 shadow-lg scale-105' 
                                     : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent hover:shadow-md'
                                 }`}
                               >
                                 <div className="text-center">
-                                  <div className="bg-gray-800 text-white rounded-lg px-3 py-1 font-semibold mb-2 text-sm">
+                                  <div className="bg-gray-800 text-white rounded-md lg:rounded-lg px-2 sm:px-3 py-1 font-semibold mb-2 sm:mb-2 text-xs sm:text-sm">
                                     {memberItem.name}
                                   </div>
-                                  <div className={`inline-block px-2 py-1 rounded-full text-xs font-bold ${
+                                  <div className={`inline-block px-2 sm:px-2 py-1 rounded-full text-xs font-bold ${
                                     memberBalances[index] < 0 
                                       ? 'bg-red-100 text-red-700 border border-red-200' 
                                       : 'bg-green-100 text-green-700 border border-green-200'
                                   }`}>
                                     {memberBalances.length > 0 && memberBalances[index] !== undefined 
-                                      ? `${memberBalances[index] >= 0 ? '+' : ''}$${Math.abs(memberBalances[index])}` 
+                                      ? formatCurrencyWithSign(memberBalances[index])
                                       : 'Loading...'}
                                   </div>
                                 </div>
@@ -338,7 +355,7 @@ function DashboardAdmin() {
                             
                             <button
                               onClick={() => setAddMemberPopup(true)}
-                              className="w-full p-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm"
+                              className="w-full p-3 sm:p-3 rounded-lg sm:rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs sm:text-sm"
                             >
                               <div className="flex items-center justify-center">
                                 <span className="text-lg mr-1">+</span>
@@ -361,86 +378,110 @@ function DashboardAdmin() {
                   </div>
 
                   {/* Member Details & Payment Log */}
-                  <div className="col-span-9">
+                  <div className="lg:col-span-9">
                     <div className="h-full flex flex-col">
                       {/* Member Details Header */}
-                      <div className="bg-gray-800 p-4 flex items-center justify-between flex-shrink-0">
-                        <h3 className="text-xl font-bold text-white">
+                      <div className="bg-gray-800 p-3 sm:p-4 flex items-center justify-between flex-shrink-0">
+                        <h3 className="text-sm sm:text-xl font-bold text-white">
                           {member ? `${member.name}'s Balance Details` : "Select a Member"}
                         </h3>
-                        <div className="flex space-x-3">
+                        <div className="flex space-x-2 sm:space-x-3">
                           {member && (
                             <>
-                              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium">
-                                Add Payment
+                              <button className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm font-medium">
+                                <span className="hidden sm:inline">Add Payment</span>
+                                <span className="sm:hidden">Add</span>
                               </button>
-                              <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium">
-                                Remove
+                              <button className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm font-medium">
+                                <span className="hidden sm:inline">Remove</span>
+                                <span className="sm:hidden">Remove</span>
                               </button>
                             </>
                           )}
                         </div>
                       </div>
 
-                      <div className="flex flex-1">
+                      <div className="flex flex-col lg:flex-row flex-1">
                         {/* Member Balance Details */}
-                        <div className="w-1/3 border-r border-gray-200 p-4 flex flex-col">
+                        <div className="lg:w-1/3 lg:border-r border-gray-200 p-3 sm:p-4 flex flex-col">
                           {member ? (
                             <div className="flex flex-col h-full">
-                              <div className="text-center mb-4 flex-shrink-0">
-                                <div className="text-xl font-bold text-gray-800">{member.name}</div>
-                                <div className="text-sm text-gray-600">Balance with others</div>
+                              <div className="text-center mb-3 sm:mb-4 flex-shrink-0">
+                                <div className="text-lg sm:text-xl font-bold text-gray-800">{member.name}</div>
+                                <div className="text-xs sm:text-sm text-gray-600">Balance with others</div>
                               </div>
                               
-                              <div className="flex-1 overflow-y-auto space-y-3" style={{maxHeight: 'calc(100vh - 500px)'}}>
-                                {members.map((memberItem, index) => (
-                                  <div
-                                    key={index}
-                                    className="p-3 rounded-lg bg-gray-50 border border-gray-200"
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <span className="font-medium text-gray-800 text-sm">{memberItem.name}</span>
-                                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                                        memberWiseBalances[index] > 0 
-                                          ? 'bg-red-100 text-red-700' 
-                                          : 'bg-green-100 text-green-700'
-                                      }`}>
-                                        {memberWiseBalances.length > 0 && memberWiseBalances[index] !== undefined 
-                                          ? `${memberWiseBalances[index] >= 0 ? '+' : ''}${Math.abs(memberWiseBalances[index])}` 
-                                          : 'Loading...'}
-                                      </span>
+                              <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-3">
+                                {members.filter(memberItem => memberItem.id !== member.id).map((memberItem, index) => {
+                                  const originalIndex = members.findIndex(m => m.id === memberItem.id);
+                                  return (
+                                    <div
+                                      key={memberItem.id}
+                                      className="p-3 sm:p-3 rounded-lg bg-gray-50 border border-gray-200 relative group"
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span className="font-medium text-gray-800 text-xs sm:text-sm">{memberItem.name}</span>
+                                        <span className={`px-2 sm:px-2 py-1 rounded-full text-xs font-bold ${
+                                          memberWiseBalances[originalIndex] > 0 
+                                            ? 'bg-green-100 text-green-700 border border-green-200' 
+                                            : memberWiseBalances[originalIndex] < 0
+                                            ? 'bg-red-100 text-red-700 border border-red-200'
+                                            : 'bg-gray-100 text-gray-600 border border-gray-200'
+                                        }`}>
+                                          {memberWiseBalances.length > 0 && memberWiseBalances[originalIndex] !== undefined 
+                                            ? formatCurrencyWithSign(memberWiseBalances[originalIndex])
+                                            : 'Loading...'}
+                                        </span>
+                                      </div>
+                                      
+                                      {/* Tooltip */}
+                                      {memberWiseBalances.length > 0 && memberWiseBalances[originalIndex] !== undefined && memberWiseBalances[originalIndex] !== 0 && (
+                                        <div className={`absolute left-1/2 transform -translate-x-1/2 px-2 sm:px-3 py-1 sm:py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 ${
+                                          index === 0 ? 'top-full mt-2' : 'bottom-full mb-2'
+                                        }`}>
+                                          {memberWiseBalances[originalIndex] > 0 
+                                            ? `${memberItem.name} has to give you ${formatCurrency(Math.abs(memberWiseBalances[originalIndex]))}` 
+                                            : `You have to give ${memberItem.name} ${formatCurrency(Math.abs(memberWiseBalances[originalIndex]))}`}
+                                          {/* Tooltip arrow */}
+                                          <div className={`absolute left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-transparent ${
+                                            index === 0 
+                                              ? 'bottom-full border-b-4 border-b-gray-800' 
+                                              : 'top-full border-t-4 border-t-gray-800'
+                                          }`}></div>
+                                        </div>
+                                      )}
                                     </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           ) : (
                             <div className="h-full flex items-center justify-center text-gray-500">
                               <div className="text-center">
-                                <div className="text-4xl mb-4">👤</div>
-                                <div>Select a member to view balance details</div>
+                                <div className="text-2xl sm:text-4xl mb-2 sm:mb-4">👤</div>
+                                <div className="text-xs sm:text-sm">Select a member to view balance details</div>
                               </div>
                             </div>
                           )}
                         </div>
 
                         {/* Payment Log */}
-                        <div className="flex-1 p-4">
+                        <div className="flex-1 p-3 sm:p-4">
                           <div className="h-full flex flex-col">
-                            <div className="mb-4 flex-shrink-0">
-                              <h4 className="text-lg font-bold text-gray-800 mb-2">Recent Payments</h4>
-                              <div className="text-sm text-gray-600">Latest transactions in this room</div>
+                            <div className="mb-3 sm:mb-4 flex-shrink-0">
+                              <h4 className="text-sm sm:text-lg font-bold text-gray-800 mb-2 sm:mb-2">Recent Payments</h4>
+                              <div className="text-xs sm:text-sm text-gray-600">Latest transactions in this room</div>
                             </div>
                             
-                            <div className="flex-1 bg-gray-50 rounded-xl overflow-hidden" style={{maxHeight: 'calc(100vh - 500px)'}}>
+                            <div className="flex-1 bg-gray-50 rounded-lg sm:rounded-xl overflow-hidden">
                               <div className="h-full overflow-auto">
                                 <table className="w-full">
                                   <thead className="sticky top-0 bg-gray-800 text-white">
                                     <tr>
-                                      <th className="p-3 text-left font-semibold">Date</th>
-                                      <th className="p-3 text-left font-semibold">From</th>
-                                      <th className="p-3 text-left font-semibold">Amount</th>
-                                      <th className="p-3 text-left font-semibold">Type</th>
+                                      <th className="p-3 sm:p-3 text-left font-semibold text-xs sm:text-sm">Date</th>
+                                      <th className="p-3 sm:p-3 text-left font-semibold text-xs sm:text-sm">From</th>
+                                      <th className="p-3 sm:p-3 text-left font-semibold text-xs sm:text-sm">Amount</th>
+                                      <th className="p-3 sm:p-3 text-left font-semibold text-xs sm:text-sm">Type</th>
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -449,29 +490,29 @@ function DashboardAdmin() {
                                       
                                       return (
                                         <tr key={payment.paymentId} className={`border-b border-gray-200 hover:bg-white transition-colors ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                                          <td className="p-3">
-                                            <div className="text-sm font-medium text-gray-800">
+                                          <td className="p-3 sm:p-3">
+                                            <div className="text-xs sm:text-sm font-medium text-gray-800">
                                               {new Date(payment.paymentTimestamp).toLocaleDateString()}
                                             </div>
                                             <div className="text-xs text-gray-500">
                                               {new Date(payment.paymentTimestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                             </div>
                                           </td>
-                                          <td className="p-3">
-                                            <div className="font-medium text-gray-800">
+                                          <td className="p-3 sm:p-3">
+                                            <div className="font-medium text-gray-800 text-xs sm:text-sm">
                                               {fromUser?.name || 'Unknown'}
                                             </div>
                                             <div className="text-xs text-gray-500 truncate">
                                               {payment.description || 'No description'}
                                             </div>
                                           </td>
-                                          <td className="p-3">
-                                            <div className={`font-bold ${payment.isRepayment ? 'text-green-600' : 'text-green-600'}`}>
-                                              ${payment.amount}
+                                          <td className="p-3 sm:p-3">
+                                            <div className={`font-bold text-xs sm:text-sm ${payment.isRepayment ? 'text-green-600' : 'text-green-600'}`}>
+                                              {formatCurrency(payment.amount)}
                                             </div>
                                           </td>
-                                          <td className="p-3">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                          <td className="p-3 sm:p-3">
+                                            <span className={`px-2 sm:px-2 py-1 rounded-full text-xs font-medium ${
                                               payment.isRepayment 
                                                 ? 'bg-green-100 text-green-800' 
                                                 : 'bg-green-100 text-green-800'
@@ -483,10 +524,10 @@ function DashboardAdmin() {
                                       );
                                     }) : (
                                       <tr>
-                                        <td colSpan="4" className="p-8 text-center text-gray-500">
+                                        <td colSpan="4" className="p-6 sm:p-8 text-center text-gray-500">
                                           <div className="flex flex-col items-center">
-                                            <div className="text-4xl mb-2">💳</div>
-                                            <div>No payments found</div>
+                                            <div className="text-2xl sm:text-4xl mb-2 sm:mb-2">💳</div>
+                                            <div className="text-xs sm:text-sm">No payments found</div>
                                           </div>
                                         </td>
                                       </tr>
@@ -496,8 +537,8 @@ function DashboardAdmin() {
                               </div>
                             </div>
                             
-                            <div className="mt-4 text-center flex-shrink-0">
-                              <button onClick={handleViewAllPayments} className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 shadow-md">
+                            <div className="mt-3 sm:mt-4 text-center flex-shrink-0">
+                              <button onClick={handleViewAllPayments} className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 sm:py-2 px-4 sm:px-6 rounded-lg transition-all duration-200 shadow-md text-xs sm:text-sm">
                                 View All Payments
                               </button>
                             </div>
@@ -508,11 +549,11 @@ function DashboardAdmin() {
                   </div>
                 </div>
               ) : (
-                <div className="h-full flex items-center justify-center text-gray-500">
+                <div className="flex-1 flex items-center justify-center text-gray-500">
                   <div className="text-center">
-                    <div className="text-6xl mb-4">🏠</div>
-                    <div className="text-xl font-semibold mb-2">No Room Selected</div>
-                    <div>Please select a room from the sidebar to get started</div>
+                    <div className="text-4xl sm:text-6xl mb-2 sm:mb-4">🏠</div>
+                    <div className="text-lg sm:text-xl font-semibold mb-1 sm:mb-2">No Room Selected</div>
+                    <div className="text-sm sm:text-base">Please select a room from the sidebar to get started</div>
                   </div>
                 </div>
               )}
