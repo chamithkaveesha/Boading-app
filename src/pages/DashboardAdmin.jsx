@@ -57,13 +57,34 @@ function DashboardAdmin() {
   useEffect(() => {
     const loadRooms = async () => {
       setLoadingRooms(true);
-      const data = await fetchRoomsByUserId();
-      setRooms(data);
-      setLoadingRooms(false);
-      if (data.length > 0) 
-        {setRoom(data[0]);
-;
-        };
+      try {
+        const data = await fetchRoomsByUserId();
+        setRooms(data || []);
+        
+        // Only set room if we have rooms and no room is currently selected
+        if (data && data.length > 0 && !room) {
+          setRoom(data[0]);
+        } else if (!data || data.length === 0) {
+          // Clear room selection if no rooms found
+          setRoom(null);
+        }
+      } catch (error) {
+        console.error("Error fetching rooms:", error);
+        setRooms([]);
+        setRoom(null);
+        
+        // Show user-friendly error message
+        if (error.message.includes("Authentication failed") || error.message.includes("log in again")) {
+          showError("Your session has expired. Please log in again.");
+          // You might want to redirect to login page here
+        } else if (error.message.includes("Access denied")) {
+          showError("You don't have permission to view rooms.");
+        } else {
+          showWarning("No rooms found. Create your first room to get started!");
+        }
+      } finally {
+        setLoadingRooms(false);
+      }
     };
     loadRooms();
   }, [updateRooms]);
@@ -73,17 +94,43 @@ function DashboardAdmin() {
   useEffect(() => {
     const loadMembers = async () => {
       setLoadingRoomMembers(true);
-      const data = await fetchRoomUsers(room.id);
-      setMembers(data);
-      setLoadingRoomMembers(false);
-      if (data.length > 0) setMember(data[0]);
+      try {
+        const data = await fetchRoomUsers(room.id);
+        setMembers(data || []);
+        
+        // Only set member if we have members and no member is currently selected
+        if (data && data.length > 0 && !member) {
+          setMember(data[0]);
+        } else if (!data || data.length === 0) {
+          // Clear member selection if no members found
+          setMember(null);
+        }
+      } catch (error) {
+        console.error("Error fetching room members:", error);
+        setMembers([]);
+        setMember(null);
+        
+        // Show user-friendly error message
+        if (error.message.includes("Authentication failed") || error.message.includes("log in again")) {
+          showError("Your session has expired. Please log in again.");
+        } else if (error.message.includes("Access denied")) {
+          showError("You don't have permission to view room members.");
+        } else {
+          showWarning("No members found in this room. Add members to get started!");
+        }
+      } finally {
+        setLoadingRoomMembers(false);
+      }
     };
-    if (room) loadMembers();
-    else {
+    
+    if (room) {
+      loadMembers();
+    } else {
       setMembers([]);
       setMember(null);
+      setLoadingRoomMembers(false);
     }
-  }, [room, updateMembers ]);
+  }, [room, updateMembers]);
 
  
 
@@ -288,24 +335,36 @@ function DashboardAdmin() {
                   </div>
                 ) : (
                   <div className="space-y-3 sm:space-y-3">
-                    {rooms.map((roomItem) => (
-                      <button
-                        key={roomItem.id}
-                        onClick={() => handleSelectRoom(roomItem)}
-                        className={`w-full p-3 sm:p-3 rounded-lg sm:rounded-xl font-medium transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm cursor-pointer ${
-                          room?.id === roomItem.id 
-                            ? 'bg-green-600 text-white shadow-lg scale-105' 
-                            : 'bg-gray-100 text-gray-800 hover:bg-gray-200 hover:shadow-md'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold truncate">{roomItem.name}</span>
-                          {room?.id === roomItem.id && (
-                            <div className="w-2 h-2 bg-white rounded-full ml-2 flex-shrink-0"></div>
-                          )}
-                        </div>
-                      </button>
-                    ))}
+                    {rooms.length > 0 ? (
+                      <>
+                        {rooms.map((roomItem) => (
+                          <button
+                            key={roomItem.id}
+                            onClick={() => handleSelectRoom(roomItem)}
+                            className={`w-full p-3 sm:p-3 rounded-lg sm:rounded-xl font-medium transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm cursor-pointer ${
+                              room?.id === roomItem.id 
+                                ? 'bg-green-600 text-white shadow-lg scale-105' 
+                                : 'bg-gray-100 text-gray-800 hover:bg-gray-200 hover:shadow-md'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold truncate">{roomItem.name}</span>
+                              {room?.id === roomItem.id && (
+                                <div className="w-2 h-2 bg-white rounded-full ml-2 flex-shrink-0"></div>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </>
+                    ) : (
+                      <div className="text-center py-6 px-2">
+                        <div className="text-3xl sm:text-4xl mb-3">🏠</div>
+                        <p className="text-gray-600 text-xs sm:text-sm mb-4 leading-relaxed">
+                          No rooms found.<br />
+                          Create your first room to get started!
+                        </p>
+                      </div>
+                    )}
                     
                     <button
                       onClick={() => setCreateRoomPopup(true)}
@@ -313,7 +372,7 @@ function DashboardAdmin() {
                     >
                       <div className="flex items-center justify-center">
                         <span className="text-lg mr-1">+</span>
-                        <span>Add Room</span>
+                        <span>{rooms.length > 0 ? 'Add Room' : 'Create First Room'}</span>
                       </div>
                     </button>
                   </div>

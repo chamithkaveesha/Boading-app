@@ -1,12 +1,11 @@
 import axios from "axios";
-
-const API_BASE_URL = "http://localhost:8080/api/rooms";
+import { API_ENDPOINTS } from "../config/api";
 
 export const deleteRoom = async (roomId) => {
     try {
      
       const token = sessionStorage.getItem("token");
-      const response = await axios.delete(`${API_BASE_URL}/${roomId}`, {
+      const response = await axios.delete(`${API_ENDPOINTS.ROOMS}/${roomId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

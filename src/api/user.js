@@ -1,9 +1,6 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-
-
-
-const API_BASE_URL = "http://localhost:8080/api/users";
+import { API_ENDPOINTS } from "../config/api";
 
 const getEmailFromToken = () => {
   const token = sessionStorage.getItem("token");
@@ -21,7 +18,7 @@ const getEmailFromToken = () => {
 
 export const getUserByName = async (name) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/${encodeURIComponent(name)}`);
+    const response = await axios.get(`${API_ENDPOINTS.USERS}/${encodeURIComponent(name)}`);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message || "Failed to fetch user information";
@@ -36,7 +33,7 @@ export const getOwner = async () => {
   }
 
   try {
-    const response = await axios.get(`${API_BASE_URL}/email`, {
+    const response = await axios.get(`${API_ENDPOINTS.USERS}/email`, {
       params: { email },
       headers: {
         Authorization: `Bearer ${token}`, // Include auth token
@@ -61,7 +58,7 @@ export const deleteUser = async () => {
   }
 
   try {
-    await axios.delete(API_BASE_URL, {
+    await axios.delete(API_ENDPOINTS.USERS, {
       headers: { Authorization: `Bearer ${token}` }
     });
   } catch (error) {

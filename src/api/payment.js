@@ -1,16 +1,9 @@
 import axios from "axios";
-
-
-const API_BASE_URL = "http://localhost:8080/api/payments";
-
-const getAuthHeaders = () => {
-  const token = sessionStorage.getItem("token");
-  return { Authorization: `Bearer ${token}` };
-};
+import { API_ENDPOINTS, getAuthHeaders } from "../config/api";
 
 export const createPayment = async (paymentData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/create`, paymentData, {
+    const response = await axios.post(`${API_ENDPOINTS.PAYMENTS}/create`, paymentData, {
       headers: getAuthHeaders(),
     });
     return response.data;
@@ -21,7 +14,7 @@ export const createPayment = async (paymentData) => {
 
 export const getPaymentById = async (id) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/${id}`, {
+    const response = await axios.get(`${API_ENDPOINTS.PAYMENTS}/${id}`, {
       headers: getAuthHeaders(),
     });
     return response.data;
@@ -32,7 +25,7 @@ export const getPaymentById = async (id) => {
 
 export const getAllPayments = async () => {
   try {
-    const response = await axios.get(API_BASE_URL, {
+    const response = await axios.get(API_ENDPOINTS.PAYMENTS, {
       headers: getAuthHeaders(),
     });
     return response.data;
@@ -43,7 +36,7 @@ export const getAllPayments = async () => {
 
 export const getPaymentsByRoomId = async (roomId, page, limit) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/room/${roomId}`, {
+    const response = await axios.get(`${API_ENDPOINTS.PAYMENTS}/room/${roomId}`, {
       headers: getAuthHeaders(),
       params: { page, limit },
     });
@@ -55,7 +48,7 @@ export const getPaymentsByRoomId = async (roomId, page, limit) => {
 
 export const getPaymentsByRoomIdAndUsers = async (roomId, user1, user2, page = 0, limit = 10) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/room/${roomId}/users`, {
+    const response = await axios.get(`${API_ENDPOINTS.PAYMENTS}/room/${roomId}/users`, {
       headers: getAuthHeaders(),
       params: { user1, user2, page, limit },
     });
@@ -67,7 +60,7 @@ export const getPaymentsByRoomIdAndUsers = async (roomId, user1, user2, page = 0
 
 export const getPairwiseBalances = async (roomId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/room/${roomId}/balances`, {
+    const response = await axios.get(`${API_ENDPOINTS.PAYMENTS}/room/${roomId}/balances`, {
       headers: getAuthHeaders(),
     });
     return response.data;

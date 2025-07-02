@@ -1,12 +1,11 @@
 import axios from "axios";
-
-const API_BASE_URL = "http://localhost:8080/api";
+import { API_ENDPOINTS } from "../config/api";
 
 export const addUserToRoom = async (roomId, userData) => {
   const token = sessionStorage.getItem("token");
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/rooms/${roomId}/users`,
+        `${API_ENDPOINTS.ROOMS}/${roomId}/users`,
         userData,
         {
           headers: {
