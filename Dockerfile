@@ -16,7 +16,12 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install dependencies (including dev dependencies needed for build)
-RUN npm ci --include=dev
+# Use --no-optional to avoid optional dependency issues
+# Set npm timeout and registry for better reliability
+RUN npm config set fetch-timeout 600000 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm ci --include=dev --no-optional
 
 # Copy source code
 COPY . .
