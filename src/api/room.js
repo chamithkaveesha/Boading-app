@@ -1,12 +1,11 @@
 import axios from "axios";
-
-const API_BASE_URL = "http://localhost:8080/api/rooms";
+import { API_ENDPOINTS } from "../config/api";
 
 export const deleteUserFromRoom = async (uirId, roomId) => {
   const token = sessionStorage.getItem("token");
   try {
     const response = await axios.delete(
-      `${API_BASE_URL}/roomer`,
+      `${API_ENDPOINTS.ROOMS}/roomer`,
       {
         params: {
           uirId: uirId,
@@ -28,7 +27,7 @@ export const addAccountToMember = async (email, uirId) => {
   const token = sessionStorage.getItem("token");
   try {
     const response = await axios.post(
-      `${API_BASE_URL}/AddAccount`,
+      `${API_ENDPOINTS.ROOMS}/AddAccount`,
       null,
       {
         params: {
