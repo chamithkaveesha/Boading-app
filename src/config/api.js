@@ -4,8 +4,8 @@
 
 // Determine the API base URL based on environment
 const getApiBaseUrl = () => {
-  // Use environment variable 
-  return import.meta.env.VITE_API_BASE_URL || 'https://your-production-api.com/api';
+  // Use environment variable with fallback
+  return import.meta.env.VITE_API_BASE_URL || 'https://expencemanager-api.onrender.com';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
