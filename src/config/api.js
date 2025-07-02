@@ -4,8 +4,8 @@
 
 // Determine the API base URL based on environment
 const getApiBaseUrl = () => {
-  // Use environment variable or default
-  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+  // Use environment variable 
+  return import.meta.env.VITE_API_BASE_URL || 'https://your-production-api.com/api';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
