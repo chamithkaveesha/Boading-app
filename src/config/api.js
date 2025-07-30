@@ -5,7 +5,7 @@
 // Determine the API base URL based on environment
 const getApiBaseUrl = () => {
   // Use environment variable with fallback
-  return import.meta.env.VITE_API_BASE_URL || 'http://64.227.164.146:8080/api';
+  return import.meta.env.VITE_API_BASE_URL || 'http://159.89.172.82:8080/api';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
